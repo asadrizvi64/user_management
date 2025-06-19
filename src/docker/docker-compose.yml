@@ -1,0 +1,88 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fluxgym-training-platform
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:password@db:5432/fluxgym_db
+      - REDIS_URL=redis://redis:6379/0
+      - FLUXGYM_PATH=/app/fluxgym
+      - STORAGE_PATH=/app/storage
+      - CUDA_VISIBLE_DEVICES=0
+    volumes:
+      - ./storage:/app/storage
+      - ./logs:/app/logs
+      - ./models:/app/models
+    depends_on:
+      - db
+      - redis
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    restart: unless-stopped
+    networks:
+      - fluxgym-network
+
+  db:
+    image: postgres:15-alpine
+    container_name: fluxgym-db
+    environment:
+      - POSTGRES_DB=fluxgym_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    networks:
+      - fluxgym-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: fluxgym-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - fluxgym-network
+    command: redis-server --appendonly yes
+
+  nginx:
+    image: nginx:alpine
+    container_name: fluxgym-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - ./storage:/app/storage:ro
+    depends_on:
+      - app
+    restart: unless-stopped
+    networks:
+      - fluxgym-network
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  fluxgym-network:
+    driver: bridge
+

@@ -1,0 +1,101 @@
+# config/training.yaml
+training:
+  # Resource Management
+  resources:
+    max_concurrent_jobs: 2
+    gpu_memory_limit_gb: 24
+    ram_limit_gb: 32
+    timeout_hours: 12
+    cleanup_days: 30
+    
+  # Default Training Parameters
+  defaults:
+    base_model: "flux-dev"
+    vram_setting: "16G"
+    max_epochs: 16
+    learning_rate: "8e-4"
+    network_dim: 4
+    resolution: 512
+    num_repeats: 10
+    save_every_n_epochs: 4
+    seed: 42
+    workers: 2
+    timestep_sampling: "shift"
+    guidance_scale: 1.0
+    
+  # VRAM Optimizations
+  vram_optimizations:
+    "12G":
+      optimizer_type: "adafactor"
+      optimizer_args:
+        relative_step: false
+        scale_parameter: false
+        warmup_init: false
+      split_mode: true
+      network_args:
+        train_blocks: "single"
+      lr_scheduler: "constant_with_warmup"
+      max_grad_norm: 0.0
+      
+    "16G":
+      optimizer_type: "adafactor"
+      optimizer_args:
+        relative_step: false
+        scale_parameter: false
+        warmup_init: false
+      lr_scheduler: "constant_with_warmup"
+      max_grad_norm: 0.0
+      
+    "20G":
+      optimizer_type: "adamw8bit"
+      
+  # Quality Settings
+  quality:
+    min_images: 2
+    max_images: 150
+    recommended_images: 20
+    min_resolution: 256
+    max_resolution: 2048
+    supported_formats: ["jpg", "jpeg", "png", "webp"]
+    
+  # Sample Generation
+  sampling:
+    enabled: true
+    default_prompts:
+      - "{trigger_word} on a white background"
+      - "{trigger_word} in natural lighting"
+      - "{trigger_word} product shot"
+    every_n_steps: 100
+    max_samples_per_job: 20
+
+# Security
+security:
+  max_upload_size_mb: 500
+  allowed_file_types: ["image/jpeg", "image/png", "image/webp"]
+  scan_uploads: true
+  quarantine_suspicious: true
+
+# Monitoring
+monitoring:
+  enable_metrics: true
+  log_level: "INFO"
+  log_retention_days: 90
+  alert_on_failure: true
+  webhook_notifications: false
+
+# Storage
+storage:
+  products_path: "./storage/products"
+  models_path: "./storage/models"
+  logs_path: "./storage/training_logs"
+  temp_path: "./storage/temp"
+  backup_path: "./storage/backups"
+  
+  # Cleanup policies
+  cleanup:
+    failed_jobs_days: 7
+    completed_jobs_days: 30
+    temp_files_hours: 24
+    log_files_days: 90
+
+---

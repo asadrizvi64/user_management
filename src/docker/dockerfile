@@ -1,0 +1,406 @@
+# Dockerfile for FluxGym Training Platform
+FROM nvidia/cuda:12.2.2-devel-ubuntu22.04
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+ENV DEBIAN_FRONTEND=noninteractive
+ENV CUDA_HOME=/usr/local/cuda
+ENV PATH=${CUDA_HOME}/bin:${PATH}
+ENV LD_LIBRARY_PATH=${CUDA_HOME}/lib64:${LD_LIBRARY_PATH}
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip \
+    python3-dev \
+    git \
+    build-essential \
+    libssl-dev \
+    libffi-dev \
+    libjpeg-dev \
+    libpng-dev \
+    libwebp-dev \
+    curl \
+    wget \
+    unzip \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create non-root user
+RUN useradd -m -s /bin/bash appuser && \
+    mkdir -p /app && \
+    chown -R appuser:appuser /app
+
+# Set working directory
+WORKDIR /app
+
+# Copy requirements first for better caching
+COPY requirements.txt .
+COPY fluxgym/requirements.txt fluxgym_requirements.txt
+
+# Install Python dependencies
+RUN pip3 install --no-cache-dir --upgrade pip && \
+    pip3 install --no-cache-dir -r requirements.txt && \
+    pip3 install --no-cache-dir -r fluxgym_requirements.txt
+
+# Install PyTorch with CUDA support
+RUN pip3 install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu122
+
+# Copy FluxGym
+COPY fluxgym/ ./fluxgym/
+RUN cd fluxgym && git clone -b sd3 https://github.com/kohya-ss/sd-scripts
+
+# Copy application code
+COPY . .
+
+# Create required directories
+RUN mkdir -p storage/products storage/training_logs static/uploads && \
+    chown -R appuser:appuser /app
+
+# Switch to non-root user
+USER appuser
+
+# Expose port
+EXPOSE 8000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+# Run the application
+CMD ["python3", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+---
+
+# docker-compose.yml
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fluxgym-training-platform
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:password@db:5432/fluxgym_db
+      - REDIS_URL=redis://redis:6379/0
+      - FLUXGYM_PATH=/app/fluxgym
+      - STORAGE_PATH=/app/storage
+      - CUDA_VISIBLE_DEVICES=0
+    volumes:
+      - ./storage:/app/storage
+      - ./logs:/app/logs
+      - ./models:/app/models
+    depends_on:
+      - db
+      - redis
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    restart: unless-stopped
+    networks:
+      - fluxgym-network
+
+  db:
+    image: postgres:15-alpine
+    container_name: fluxgym-db
+    environment:
+      - POSTGRES_DB=fluxgym_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    networks:
+      - fluxgym-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: fluxgym-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - fluxgym-network
+    command: redis-server --appendonly yes
+
+  nginx:
+    image: nginx:alpine
+    container_name: fluxgym-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - ./storage:/app/storage:ro
+    depends_on:
+      - app
+    restart: unless-stopped
+    networks:
+      - fluxgym-network
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  fluxgym-network:
+    driver: bridge
+
+---
+
+# nginx.conf
+events {
+    worker_connections 1024;
+}
+
+http {
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+    
+    # Logging
+    log_format main '$remote_addr - $remote_user [$time_local] "$request" '
+                    '$status $body_bytes_sent "$http_referer" '
+                    '"$http_user_agent" "$http_x_forwarded_for"';
+    
+    access_log /var/log/nginx/access.log main;
+    error_log /var/log/nginx/error.log;
+    
+    # Basic settings
+    sendfile on;
+    tcp_nopush on;
+    tcp_nodelay on;
+    keepalive_timeout 65;
+    types_hash_max_size 2048;
+    client_max_body_size 100M;
+    
+    # Gzip compression
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_types
+        text/plain
+        text/css
+        text/xml
+        text/javascript
+        application/javascript
+        application/xml+rss
+        application/json;
+    
+    # Rate limiting
+    limit_req_zone $binary_remote_addr zone=api:10m rate=10r/s;
+    limit_req_zone $binary_remote_addr zone=upload:10m rate=1r/s;
+    
+    # Upstream backend
+    upstream backend {
+        server app:8000;
+    }
+    
+    # Main server block
+    server {
+        listen 80;
+        server_name localhost;
+        
+        # Redirect HTTP to HTTPS in production
+        # return 301 https://$server_name$request_uri;
+        
+        # Static files
+        location /static/ {
+            alias /app/storage/;
+            expires 1y;
+            add_header Cache-Control "public, immutable";
+        }
+        
+        # Storage files (models, samples, etc.)
+        location /storage/ {
+            alias /app/storage/;
+            expires 1h;
+            add_header Cache-Control "public";
+        }
+        
+        # API endpoints
+        location /api/ {
+            limit_req zone=api burst=20 nodelay;
+            proxy_pass http://backend;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_read_timeout 300s;
+            proxy_send_timeout 300s;
+        }
+        
+        # Upload endpoints
+        location /api/training/products/ {
+            limit_req zone=upload burst=5 nodelay;
+            proxy_pass http://backend;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_read_timeout 600s;
+            proxy_send_timeout 600s;
+            client_max_body_size 500M;
+        }
+        
+        # WebSocket endpoints
+        location /ws/ {
+            proxy_pass http://backend;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "upgrade";
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_read_timeout 86400;
+            proxy_send_timeout 86400;
+        }
+        
+        # Health check
+        location /health {
+            proxy_pass http://backend;
+            access_log off;
+        }
+        
+        # Frontend application
+        location / {
+            proxy_pass http://backend;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+    }
+    
+    # HTTPS server block (uncomment for production)
+    # server {
+    #     listen 443 ssl http2;
+    #     server_name your-domain.com;
+    #     
+    #     ssl_certificate /etc/nginx/ssl/cert.pem;
+    #     ssl_certificate_key /etc/nginx/ssl/key.pem;
+    #     
+    #     ssl_protocols TLSv1.2 TLSv1.3;
+    #     ssl_ciphers ECDHE-RSA-AES256-GCM-SHA512:DHE-RSA-AES256-GCM-SHA512:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384;
+    #     ssl_prefer_server_ciphers off;
+    #     ssl_session_cache shared:SSL:10m;
+    #     ssl_session_timeout 10m;
+    #     
+    #     # Include the same location blocks as HTTP server
+    # }
+}
+
+---
+
+# docker-compose.dev.yml (for development)
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: fluxgym-dev
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite:///./dev.db
+      - FLUXGYM_PATH=/app/fluxgym
+      - STORAGE_PATH=/app/storage
+      - CUDA_VISIBLE_DEVICES=0
+      - DEBUG=1
+    volumes:
+      - .:/app
+      - ./storage:/app/storage
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    restart: unless-stopped
+    command: ["python3", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
+---
+
+# Dockerfile.dev (for development)
+FROM nvidia/cuda:12.2.2-devel-ubuntu22.04
+
+ENV PYTHONUNBUFFERED=1
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip \
+    python3-dev \
+    git \
+    build-essential \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Install Python dependencies
+COPY requirements.txt .
+RUN pip3 install --no-cache-dir --upgrade pip && \
+    pip3 install --no-cache-dir -r requirements.txt
+
+# Install PyTorch
+RUN pip3 install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu122
+
+# Install development tools
+RUN pip3 install --no-cache-dir pytest pytest-asyncio black isort flake8
+
+EXPOSE 8000
+
+CMD ["python3", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
+---
+
+# .dockerignore
+.git
+.gitignore
+README.md
+Dockerfile*
+docker-compose*
+.dockerignore
+node_modules
+npm-debug.log
+.next
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+storage/
+logs/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.env
+.venv
+pip-log.txt
+pip-delete-this-directory.txt
+.coverage
+.pytest_cache/
+.mypy_cache/
+.DS_Store
+*.log
