@@ -1,3 +1,4 @@
+// src/components/common/Sidebar.jsx - FIXED VERSION
 import React from 'react';
 import {
   Drawer, List, ListItem, ListItemIcon, ListItemText,
@@ -5,7 +6,7 @@ import {
 } from '@mui/material';
 import {
   Dashboard, PhotoLibrary, ModelTraining, People,
-  History, Assessment, Brush, Admin
+  History, Assessment, Brush, AdminPanelSettings  // Changed Admin to AdminPanelSettings
 } from '@mui/icons-material';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';

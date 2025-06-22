@@ -74,8 +74,8 @@ docker-compose up -d
 ```
 
 5. **Access the Application**
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:8000
+- Frontend: http://localhost:3001
+- Backend API: http://localhost:8001
 - Training Monitor: Real-time progress in the UI
 
 ## Usage Guide

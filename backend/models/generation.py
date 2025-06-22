@@ -1,8 +1,9 @@
 from sqlalchemy import Column, Integer, String, DateTime, Text, ForeignKey, JSON, Float
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
+from app.database import Base
 
-Base = declarative_base()
+# Base = declarative_base()
 
 class Generation(Base):
     __tablename__ = "generations"

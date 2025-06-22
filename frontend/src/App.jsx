@@ -1,8 +1,41 @@
-// src/App.jsx - STEP 1: Basic working version
+// src/App.jsx - MINIMAL WORKING VERSION
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { CssBaseline, Box, Container, Typography, Button, Card, CardContent } from '@mui/material';
+import { CssBaseline, Box } from '@mui/material';
+
+// Only import components that definitely exist
+import { AuthProvider, useAuth } from './hooks/useAuth';
+import Login from './components/auth/Login';
+import Register from './components/auth/Register';
+
+// Import existing components only if they exist
+let Header, Sidebar, ImageEditor;
+try {
+  Header = require('./components/common/Header').default;
+} catch (e) {
+  console.warn('Header component not found, using placeholder');
+  Header = () => <div>Header Placeholder</div>;
+}
+
+try {
+  Sidebar = require('./components/common/Sidebar').default;
+} catch (e) {
+  console.warn('Sidebar component not found, using placeholder');
+  Sidebar = () => <div>Sidebar Placeholder</div>;
+}
+
+try {
+  ImageEditor = require('./components/editor/ImageEditor').default;
+} catch (e) {
+  console.warn('ImageEditor component not found, using placeholder');
+  ImageEditor = () => (
+    <div style={{ padding: '20px' }}>
+      <h2>Image Editor Placeholder</h2>
+      <p>Create the ImageEditor component to see the full interface.</p>
+    </div>
+  );
+}
 
 // Theme configuration
 const theme = createTheme({
@@ -18,134 +51,76 @@ const theme = createTheme({
       default: '#f5f5f5',
     },
   },
-  typography: {
-    fontFamily: [
-      'Roboto',
-      '"Helvetica Neue"',
-      'Arial',
-      'sans-serif',
-    ].join(','),
-  },
 });
 
-// Simple Login Component
-const Login = () => {
+// Protected Route wrapper
+const ProtectedRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+  
+  if (loading) {
+    return (
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '100vh',
+        backgroundColor: '#f5f5f5'
+      }}>
+        <div style={{
+          width: '40px',
+          height: '40px',
+          border: '4px solid #e0e0e0',
+          borderTop: '4px solid #1976d2',
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite'
+        }} />
+      </Box>
+    );
+  }
+  
+  if (!user && !localStorage.getItem('access_token')) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  return children;
+};
+
+// Layout component for authenticated pages
+const Layout = ({ children }) => {
   return (
-    <Container maxWidth="sm" sx={{ 
-      minHeight: '100vh', 
-      display: 'flex', 
-      alignItems: 'center', 
-      justifyContent: 'center' 
-    }}>
-      <Card sx={{ width: '100%', maxWidth: 400 }}>
-        <CardContent sx={{ p: 4 }}>
-          <Typography variant="h4" component="h1" gutterBottom align="center">
-            Product Training Platform
-          </Typography>
-          <Typography variant="body1" color="textSecondary" align="center" sx={{ mb: 3 }}>
-            AI-powered product training and image generation
-          </Typography>
-          <Button 
-            variant="contained" 
-            fullWidth 
-            size="large"
-            onClick={() => window.location.href = '/dashboard'}
-          >
-            Enter Dashboard (Demo)
-          </Button>
-        </CardContent>
-      </Card>
-    </Container>
+    <Box sx={{ display: 'flex' }}>
+      <Header />
+      <Sidebar />
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          p: 3,
+          width: { sm: `calc(100% - 240px)` },
+          ml: { sm: '240px' },
+          mt: '64px',
+        }}
+      >
+        {children}
+      </Box>
+    </Box>
   );
 };
 
-// Simple Dashboard Component
-const Dashboard = () => {
+// Auth layout for login/register pages
+const AuthLayout = ({ children }) => {
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Typography variant="h3" component="h1" gutterBottom>
-        🎉 Welcome to Product Training Platform
-      </Typography>
-      
-      <Typography variant="h6" color="textSecondary" gutterBottom sx={{ mb: 4 }}>
-        Your AI-powered platform is working correctly!
-      </Typography>
-
-      <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
-        <Card>
-          <CardContent>
-            <Typography variant="h6" gutterBottom>
-              🖼️ Image Generation
-            </Typography>
-            <Typography variant="body2" color="textSecondary">
-              Generate images using your trained product models
-            </Typography>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent>
-            <Typography variant="h6" gutterBottom>
-              🎯 Product Training
-            </Typography>
-            <Typography variant="body2" color="textSecondary">
-              Train custom FLUX LoRA models for your products
-            </Typography>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent>
-            <Typography variant="h6" gutterBottom>
-              🎨 Inpainting
-            </Typography>
-            <Typography variant="body2" color="textSecondary">
-              Replace parts of images with your trained products
-            </Typography>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent>
-            <Typography variant="h6" gutterBottom>
-              📊 Analytics
-            </Typography>
-            <Typography variant="body2" color="textSecondary">
-              Monitor usage, costs, and performance metrics
-            </Typography>
-          </CardContent>
-        </Card>
-      </Box>
-
-      <Box sx={{ mt: 4, p: 3, bgcolor: 'primary.main', color: 'white', borderRadius: 2 }}>
-        <Typography variant="h6" gutterBottom>
-          ✅ System Status: All Components Working
-        </Typography>
-        <Typography variant="body2">
-          • React App: ✅ Running<br/>
-          • Material-UI: ✅ Loaded<br/>
-          • Routing: ✅ Working<br/>
-          • Theme: ✅ Applied<br/>
-          • Ready for full component integration!
-        </Typography>
-      </Box>
-
-      <Box sx={{ mt: 3, textAlign: 'center' }}>
-        <Button 
-          variant="outlined" 
-          onClick={() => window.location.href = '/login'}
-          sx={{ mr: 2 }}
-        >
-          Back to Login
-        </Button>
-        <Button 
-          variant="contained"
-          onClick={() => alert('Ready to integrate full components!')}
-        >
-          Next: Add Full Components
-        </Button>
-      </Box>
-    </Container>
+    <Box
+      sx={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      }}
+    >
+      {children}
+    </Box>
   );
 };
 
@@ -154,14 +129,57 @@ const App = () => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Router>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/" element={<Navigate to="/login" replace />} />
-          <Route path="*" element={<Navigate to="/login" replace />} />
-        </Routes>
-      </Router>
+      <AuthProvider>
+        <Router>
+          <Routes>
+            {/* Auth Routes */}
+            <Route
+              path="/login"
+              element={
+                <AuthLayout>
+                  <Login />
+                </AuthLayout>
+              }
+            />
+            <Route
+              path="/register"
+              element={
+                <AuthLayout>
+                  <Register />
+                </AuthLayout>
+              }
+            />
+
+            {/* Protected Routes */}
+            <Route
+              path="/editor"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ImageEditor />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Add more routes as you create components */}
+            
+            {/* Default redirects */}
+            <Route
+              path="/dashboard"
+              element={<Navigate to="/editor" replace />}
+            />
+            <Route
+              path="/"
+              element={<Navigate to="/editor" replace />}
+            />
+            <Route
+              path="*"
+              element={<Navigate to="/editor" replace />}
+            />
+          </Routes>
+        </Router>
+      </AuthProvider>
     </ThemeProvider>
   );
 };

@@ -20,7 +20,7 @@ class Settings:
     MAX_FILE_SIZE: int = int(os.getenv("MAX_FILE_SIZE", "10485760"))  # 10MB
     
     # CORS
-    ALLOWED_ORIGINS: List[str] = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(",")
+    ALLOWED_ORIGINS: List[str] = os.getenv("ALLOWED_ORIGINS", "http://localhost:3001").split(",")
     
     # Training settings
     MAX_TRAINING_IMAGES: int = int(os.getenv("MAX_TRAINING_IMAGES", "150"))

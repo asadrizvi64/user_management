@@ -64,4 +64,3 @@ echo "1. Update .env file with your configuration"
 echo "2. Run: docker-compose up -d"
 echo "3. Access the application at http://localhost"
 
----

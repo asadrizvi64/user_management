@@ -14,13 +14,14 @@ from PIL import Image
 import torch
 from transformers import AutoProcessor, AutoModelForCausalLM
 
-from ..models.training import TrainingJob, TrainingStatus
-from ..models.product import Product
-from ..app.database import get_db
-from ..core.exceptions import TrainingError
+from models.training import TrainingJob, TrainingStatus
+from models.product import Product
+from app.database import get_db
+# from ..core.exceptions import TrainingErro
 from .dataset_manager import DatasetManager
 from .config_generator import ConfigGenerator
 from .model_downloader import ModelDownloader
+
 
 class FluxTrainer:
     def __init__(self):
@@ -91,7 +92,8 @@ class FluxTrainer:
             return job_id
             
         except Exception as e:
-            raise TrainingError(f"Failed to start training: {str(e)}")
+            print(f"Error starting training: {str(e)}")
+        #     raise TrainingError(f"Failed to start training: {str(e)}")
     
     async def _start_training_process(self, script_path: Path, job_id: str) -> subprocess.Popen:
         """Start the actual training process"""

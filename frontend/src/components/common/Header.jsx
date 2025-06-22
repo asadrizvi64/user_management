@@ -1,11 +1,11 @@
-import React from 'react';
+// src/components/common/Header.jsx - FIXED VERSION
+import React, { useState } from 'react';
 import {
   AppBar, Toolbar, Typography, IconButton, Menu, MenuItem,
   Avatar, Box, Badge
 } from '@mui/material';
 import { AccountCircle, Notifications, Logout } from '@mui/icons-material';
 import { useAuth } from '../../hooks/useAuth';
-import { useState } from 'react';
 
 const Header = () => {
   const { user, logout } = useAuth();
@@ -23,6 +23,10 @@ const Header = () => {
     logout();
     handleMenuClose();
   };
+
+  // Handle case where user might not be loaded yet
+  const displayName = user?.full_name || user?.username || user?.email || 'User';
+  const avatarLetter = displayName.charAt(0).toUpperCase();
 
   return (
     <AppBar 
@@ -45,8 +49,8 @@ const Header = () => {
           </IconButton>
           
           <IconButton onClick={handleMenuOpen} color="inherit">
-            <Avatar sx={{ width: 32, height: 32 }}>
-              {user?.full_name?.charAt(0) || user?.username?.charAt(0) || 'U'}
+            <Avatar sx={{ width: 32, height: 32, bgcolor: 'primary.dark' }}>
+              {avatarLetter}
             </Avatar>
           </IconButton>
           

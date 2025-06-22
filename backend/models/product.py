@@ -2,8 +2,9 @@ from sqlalchemy import Column, Integer, String, DateTime, Text, ForeignKey, Enum
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 import enum
+from app.database import Base
 
-Base = declarative_base()
+# Base = declarative_base()
 
 class AccessLevel(enum.Enum):
     PUBLIC = "public"

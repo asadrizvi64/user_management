@@ -46,7 +46,7 @@ const UserManagement = () => {
     setEditingUser(null);
     setSuccess(message);
     setRefreshTrigger(prev => prev + 1);
-    setTimeout(() => setSuccess(''), 3000);
+    setTimeout(() => setSuccess(''), 3001);
   };
 
   const handleFormCancel = () => {
@@ -57,7 +57,7 @@ const UserManagement = () => {
   const handleUserAction = (message) => {
     setSuccess(message);
     setRefreshTrigger(prev => prev + 1);
-    setTimeout(() => setSuccess(''), 3000);
+    setTimeout(() => setSuccess(''), 3001);
   };
 
   return (

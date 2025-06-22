@@ -1,12 +1,45 @@
+// src/components/editor/ImageEditor.jsx - FIXED VERSION
 import React, { useState, useEffect } from 'react';
 import {
-  Container, Grid, Paper, Typography, Box, Alert, CircularProgress
+  Container, Grid, Paper, Typography, Box, Alert, CircularProgress,
+  FormControl, InputLabel, Select, MenuItem
 } from '@mui/material';
 import PromptInput from './PromptInput';
-import ProductSelector from './ProductSelector';
 import GeneratedImages from './GeneratedImages';
-import { generationService } from '../../services/generationService';
-import { productService } from '../../services/productService';
+
+// Temporary ProductSelector component (inline until we create the separate file)
+const ProductSelector = ({ products, selectedProduct, onProductChange }) => {
+  return (
+    <FormControl fullWidth>
+      <InputLabel>Select Product</InputLabel>
+      <Select
+        value={selectedProduct?.id || ''}
+        onChange={(e) => {
+          const product = products.find(p => p.id === e.target.value);
+          onProductChange(product);
+        }}
+        label="Select Product"
+      >
+        <MenuItem value="">
+          <em>No product selected</em>
+        </MenuItem>
+        {products
+          .filter(product => product.status === 'ready')
+          .map(product => (
+            <MenuItem key={product.id} value={product.id}>
+              {product.name} ({product.trigger_word})
+            </MenuItem>
+          ))}
+      </Select>
+      
+      {selectedProduct && (
+        <Typography variant="caption" color="textSecondary" sx={{ mt: 1, display: 'block' }}>
+          Use "{selectedProduct.trigger_word}" in your prompts to activate this product
+        </Typography>
+      )}
+    </FormControl>
+  );
+};
 
 const ImageEditor = () => {
   const [products, setProducts] = useState([]);
@@ -22,10 +55,29 @@ const ImageEditor = () => {
 
   const loadProducts = async () => {
     try {
-      const response = await productService.getProducts();
-      setProducts(response.products);
+      // Mock data for now - replace with actual API call later
+      const mockProducts = [
+        {
+          id: 1,
+          name: 'Demo Product 1',
+          trigger_word: 'myproduct1',
+          status: 'ready'
+        },
+        {
+          id: 2,
+          name: 'Demo Product 2', 
+          trigger_word: 'myproduct2',
+          status: 'ready'
+        }
+      ];
+      setProducts(mockProducts);
+      
+      // Uncomment this when backend is ready:
+      // const response = await productService.getProducts();
+      // setProducts(response.products);
     } catch (error) {
-      setError('Failed to load products');
+      setError('Failed to load products (using demo data)');
+      console.error('Error loading products:', error);
     }
   };
 
@@ -34,6 +86,32 @@ const ImageEditor = () => {
     setError('');
     
     try {
+      // Mock generation for now - replace with actual API call later
+      console.log('Generation params:', generationParams);
+      
+      // Simulate API delay
+      setTimeout(() => {
+        const mockGeneration = {
+          id: Date.now(),
+          prompt: generationParams.prompt,
+          image_paths: [
+            'https://via.placeholder.com/512x512/1976d2/ffffff?text=Generated+Image+1',
+            'https://via.placeholder.com/512x512/dc004e/ffffff?text=Generated+Image+2'
+          ],
+          execution_time: 3.2,
+          cost: 0.05,
+          created_at: new Date().toISOString()
+        };
+        
+        setGeneratedImages(prev => [mockGeneration, ...prev]);
+        setSuccess('Images generated successfully! (Demo)');
+        setIsGenerating(false);
+        
+        setTimeout(() => setSuccess(''), 3000);
+      }, 2000);
+      
+      // Uncomment this when backend is ready:
+      /*
       const requestData = {
         ...generationParams,
         product_id: selectedProduct?.id
@@ -42,11 +120,10 @@ const ImageEditor = () => {
       const result = await generationService.generateImages(requestData);
       setGeneratedImages(prev => [result, ...prev]);
       setSuccess('Images generated successfully!');
+      */
       
-      setTimeout(() => setSuccess(''), 3000);
     } catch (error) {
-      setError(error.response?.data?.detail || 'Failed to generate images');
-    } finally {
+      setError('Failed to generate images: ' + error.message);
       setIsGenerating(false);
     }
   };
