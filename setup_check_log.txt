@@ -1,0 +1,17 @@
+========================================== 
+  AI Training Platform - Setup Check     
+========================================== 
+ 
+-------------- 
+[OK] frontend\src\store\trainingSlice.js 
+-------------------- 
+[MISSING] backend\.env 
+[OK] frontend\package.json 
+[MISSING] backend\requirements.txt 
+-------------------------- 
+[MISSING] start_backend.bat 
+[MISSING] start_comfyui.bat 
+[MISSING] start_frontend.bat 
+[MISSING] start_all.bat 
+ 
+Checking Python imports... 

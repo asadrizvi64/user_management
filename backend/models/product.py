@@ -1,10 +1,8 @@
 from sqlalchemy import Column, Integer, String, DateTime, Text, ForeignKey, Enum
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
+from datetime import datetime
 import enum
 from app.database import Base
-
-# Base = declarative_base()
 
 class AccessLevel(enum.Enum):
     PUBLIC = "public"
@@ -20,8 +18,8 @@ class Product(Base):
     model_path = Column(String(500))  # Path to trained model file
     access_level = Column(Enum(AccessLevel), default=AccessLevel.PUBLIC)
     created_by = Column(Integer, ForeignKey("users.id"), nullable=False)
-    created_at = Column(DateTime)
-    updated_at = Column(DateTime)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, onupdate=datetime.utcnow)
     
     # Relationships
     creator = relationship("User", back_populates="products")

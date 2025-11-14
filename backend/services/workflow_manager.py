@@ -442,39 +442,53 @@ class WorkflowManager:
         }
         
         return input_mappings.get(node_type, [])
-    
+        
     def get_workflow_for_inpainting(
         self,
         prompt: str,
         negative_prompt: str,
         image_filename: str,
-        lora_name: str = None,
+        lora_name: Optional[str] = None,
         lora_strength: float = 1.0,
         steps: int = 30,
         cfg: float = 1.0,
         seed: int = -1,
         guidance: float = 40.0
-    ) -> Optional[Dict[str, Any]]:
-        """Get your exact inpainting workflow ready for ComfyUI API"""
+    ) -> Optional[Dict]:
+        """Get your exact flux_inpainting workflow and configure it"""
         
-        # Load the workflow
+        # Load your actual workflow file
         workflow = self.load_workflow("flux_inpainting")
+        
         if not workflow:
-            logger.error("Could not load flux_inpainting workflow")
             return None
         
-        # Customize it for API usage
-        api_workflow = self.customize_workflow_for_api(
-            workflow,
-            prompt=prompt,
-            negative_prompt=negative_prompt,
-            image_filename=image_filename,
-            lora_name=lora_name,
-            lora_strength=lora_strength,
-            steps=steps,
-            cfg=cfg,
-            seed=seed,
-            guidance=guidance
-        )
+        # Update the workflow with parameters
+        # Based on your flux_inpainting.json structure:
         
-        return api_workflow
+        # Update prompts (nodes 23 and 7)
+        if "23" in workflow:
+            workflow["23"]["inputs"]["text"] = prompt
+        if "7" in workflow:
+            workflow["7"]["inputs"]["text"] = negative_prompt
+        
+        # Update image input (node 17)
+        if "17" in workflow:
+            workflow["17"]["inputs"]["image"] = image_filename
+        
+        # Update sampler settings (node 3)
+        if "3" in workflow:
+            workflow["3"]["inputs"]["seed"] = seed if seed != -1 else 42
+            workflow["3"]["inputs"]["steps"] = steps
+            workflow["3"]["inputs"]["cfg"] = cfg
+        
+        # Update guidance (node 26)
+        if "26" in workflow:
+            workflow["26"]["inputs"]["guidance"] = guidance
+        
+        # Add LoRA if provided (node 52)
+        if lora_name and "52" in workflow:
+            workflow["52"]["inputs"]["lora_name"] = lora_name
+            workflow["52"]["inputs"]["strength_model"] = lora_strength
+        
+        return workflow

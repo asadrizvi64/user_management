@@ -1,113 +1,255 @@
-// src/App.jsx - MINIMAL WORKING VERSION
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { CssBaseline, Box } from '@mui/material';
 
-// Only import components that definitely exist
+// Auth
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
+import ProtectedRoute from './components/auth/ProtectedRoute';
 
-// Import existing components only if they exist
-let Header, Sidebar, ImageEditor;
-try {
-  Header = require('./components/common/Header').default;
-} catch (e) {
-  console.warn('Header component not found, using placeholder');
-  Header = () => <div>Header Placeholder</div>;
-}
+// Layout Components
+import Header from './components/common/Header';
+import Sidebar from './components/common/Sidebar';
 
-try {
-  Sidebar = require('./components/common/Sidebar').default;
-} catch (e) {
-  console.warn('Sidebar component not found, using placeholder');
-  Sidebar = () => <div>Sidebar Placeholder</div>;
-}
+// Dashboard
+import ImageEditor from './components/editor/ImageEditor';
 
-try {
-  ImageEditor = require('./components/editor/ImageEditor').default;
-} catch (e) {
-  console.warn('ImageEditor component not found, using placeholder');
-  ImageEditor = () => (
-    <div style={{ padding: '20px' }}>
-      <h2>Image Editor Placeholder</h2>
-      <p>Create the ImageEditor component to see the full interface.</p>
-    </div>
-  );
-}
+// Products
+import ProductDashboard from './components/products/ProductDashboard';
+import ProductTraining from './components/products/ProductTraining';
+import TrainingProgress from './components/products/TrainingProgress';
 
-// Theme configuration
+// Inpainting
+import InpaintingTool from './components/inpainting/InpaintingTool';
+
+// History
+import History from './components/history/History';
+
+// Admin Only
+import UserManagement from './components/users/UserManagement';
+import Reports from './components/reports/Reports';
+
+// Enhanced Theme configuration with modern colors and gradients
 const theme = createTheme({
   palette: {
     mode: 'light',
     primary: {
-      main: '#1976d2',
+      main: '#6366f1', // Indigo
+      light: '#818cf8',
+      dark: '#4f46e5',
+      contrastText: '#ffffff',
     },
     secondary: {
-      main: '#dc004e',
+      main: '#ec4899', // Pink
+      light: '#f472b6',
+      dark: '#db2777',
+      contrastText: '#ffffff',
+    },
+    success: {
+      main: '#10b981',
+      light: '#34d399',
+      dark: '#059669',
+    },
+    warning: {
+      main: '#f59e0b',
+      light: '#fbbf24',
+      dark: '#d97706',
+    },
+    error: {
+      main: '#ef4444',
+      light: '#f87171',
+      dark: '#dc2626',
+    },
+    info: {
+      main: '#3b82f6',
+      light: '#60a5fa',
+      dark: '#2563eb',
     },
     background: {
-      default: '#f5f5f5',
+      default: '#f8fafc',
+      paper: '#ffffff',
+    },
+    text: {
+      primary: '#1e293b',
+      secondary: '#64748b',
+    },
+  },
+  typography: {
+    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+    h1: {
+      fontWeight: 800,
+      fontSize: '3rem',
+      lineHeight: 1.2,
+    },
+    h2: {
+      fontWeight: 700,
+      fontSize: '2.5rem',
+      lineHeight: 1.3,
+    },
+    h3: {
+      fontWeight: 700,
+      fontSize: '2rem',
+      lineHeight: 1.3,
+    },
+    h4: {
+      fontWeight: 700,
+      fontSize: '1.75rem',
+      lineHeight: 1.4,
+    },
+    h5: {
+      fontWeight: 600,
+      fontSize: '1.5rem',
+      lineHeight: 1.4,
+    },
+    h6: {
+      fontWeight: 600,
+      fontSize: '1.25rem',
+      lineHeight: 1.4,
+    },
+    button: {
+      fontWeight: 600,
+      letterSpacing: '0.02em',
+    },
+  },
+  shape: {
+    borderRadius: 12,
+  },
+  shadows: [
+    'none',
+    '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+    '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
+    '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+    '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
+    '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
+    '0 25px 50px -12px rgb(0 0 0 / 0.25)',
+    '0 25px 50px -12px rgb(0 0 0 / 0.25)',
+    '0 25px 50px -12px rgb(0 0 0 / 0.25)',
+    '0 25px 50px -12px rgb(0 0 0 / 0.25)',
+    '0 25px 50px -12px rgb(0 0 0 / 0.25)',
+    '0 25px 50px -12px rgb(0 0 0 / 0.25)',
+  ],
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          textTransform: 'none',
+          borderRadius: 10,
+          padding: '10px 24px',
+          fontSize: '0.95rem',
+          fontWeight: 600,
+          boxShadow: 'none',
+          transition: 'all 0.2s ease-in-out',
+          '&:hover': {
+            boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)',
+            transform: 'translateY(-1px)',
+          },
+        },
+        contained: {
+          background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+          '&:hover': {
+            background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
+          },
+        },
+        outlined: {
+          borderWidth: '2px',
+          '&:hover': {
+            borderWidth: '2px',
+          },
+        },
+      },
+    },
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          borderRadius: 16,
+          boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
+          transition: 'all 0.3s ease-in-out',
+          border: '1px solid rgba(0, 0, 0, 0.05)',
+        },
+      },
+    },
+    MuiTextField: {
+      styleOverrides: {
+        root: {
+          '& .MuiOutlinedInput-root': {
+            borderRadius: 10,
+            transition: 'all 0.2s ease-in-out',
+            '&:hover': {
+              '& .MuiOutlinedInput-notchedOutline': {
+                borderColor: '#6366f1',
+              },
+            },
+            '&.Mui-focused': {
+              '& .MuiOutlinedInput-notchedOutline': {
+                borderWidth: '2px',
+              },
+            },
+          },
+        },
+      },
+    },
+    MuiChip: {
+      styleOverrides: {
+        root: {
+          borderRadius: 8,
+          fontWeight: 600,
+        },
+      },
+    },
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          backgroundImage: 'none',
+        },
+      },
     },
   },
 });
 
-// Protected Route wrapper
-const ProtectedRoute = ({ children }) => {
-  const { user, loading } = useAuth();
-  
-  if (loading) {
-    return (
-      <Box sx={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        minHeight: '100vh',
-        backgroundColor: '#f5f5f5'
-      }}>
-        <div style={{
-          width: '40px',
-          height: '40px',
-          border: '4px solid #e0e0e0',
-          borderTop: '4px solid #1976d2',
-          borderRadius: '50%',
-          animation: 'spin 1s linear infinite'
-        }} />
-      </Box>
-    );
-  }
-  
-  if (!user && !localStorage.getItem('access_token')) {
-    return <Navigate to="/login" replace />;
-  }
-  
-  return children;
-};
-
-// Layout component for authenticated pages
+// Enhanced Layout component with smooth transitions
 const Layout = ({ children }) => {
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f8fafc' }}>
       <Header />
       <Sidebar />
       <Box
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
-          width: { sm: `calc(100% - 240px)` },
-          ml: { sm: '240px' },
-          mt: '64px',
+          p: 4,
+          width: { sm: `calc(100% - 260px)` },
+          ml: { sm: '260px' },
+          mt: '70px',
+          backgroundColor: '#f8fafc',
+          minHeight: 'calc(100vh - 70px)',
+          transition: 'all 0.3s ease-in-out',
         }}
       >
-        {children}
+        <Box
+          sx={{
+            animation: 'fadeIn 0.5s ease-in-out',
+            '@keyframes fadeIn': {
+              from: {
+                opacity: 0,
+                transform: 'translateY(10px)',
+              },
+              to: {
+                opacity: 1,
+                transform: 'translateY(0)',
+              },
+            },
+          }}
+        >
+          {children}
+        </Box>
       </Box>
     </Box>
   );
 };
 
-// Auth layout for login/register pages
+// Enhanced Auth layout with animated gradient
 const AuthLayout = ({ children }) => {
   return (
     <Box
@@ -116,7 +258,32 @@ const AuthLayout = ({ children }) => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)',
+        backgroundSize: '200% 200%',
+        animation: 'gradientShift 15s ease infinite',
+        position: 'relative',
+        overflow: 'hidden',
+        '@keyframes gradientShift': {
+          '0%': {
+            backgroundPosition: '0% 50%',
+          },
+          '50%': {
+            backgroundPosition: '100% 50%',
+          },
+          '100%': {
+            backgroundPosition: '0% 50%',
+          },
+        },
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(255,255,255,0.1) 0%, transparent 50%)',
+          pointerEvents: 'none',
+        },
       }}
     >
       {children}
@@ -150,7 +317,18 @@ const App = () => {
               }
             />
 
-            {/* Protected Routes */}
+            {/* Dashboard / Editor */}
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ImageEditor />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            
             <Route
               path="/editor"
               element={
@@ -162,21 +340,90 @@ const App = () => {
               }
             />
 
-            {/* Add more routes as you create components */}
-            
+            {/* Products */}
+            <Route
+              path="/products"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ProductDashboard />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/products/:productId/train"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ProductTraining />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/training/:jobId"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <TrainingProgress />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Inpainting */}
+            <Route
+              path="/inpainting"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <InpaintingTool />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* History */}
+            <Route
+              path="/history"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <History />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Admin Routes */}
+            <Route
+              path="/users"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <UserManagement />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/reports"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Reports />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
             {/* Default redirects */}
-            <Route
-              path="/dashboard"
-              element={<Navigate to="/editor" replace />}
-            />
-            <Route
-              path="/"
-              element={<Navigate to="/editor" replace />}
-            />
-            <Route
-              path="*"
-              element={<Navigate to="/editor" replace />}
-            />
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </Router>
       </AuthProvider>
@@ -185,3 +432,4 @@ const App = () => {
 };
 
 export default App;
+      

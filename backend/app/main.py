@@ -1,44 +1,43 @@
-# app/main.py
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from sqlalchemy import text
 from pathlib import Path
 import sys
 import os
 
-# Add the backend directory to Python path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Add parent directory to path
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+# Import config
+from config import settings
 
 # Database setup
-from database import engine, Base
-from sqlalchemy import text
+from app.database import engine, Base, init_database
 
-# Import all models to ensure they're registered
+# Import models (this registers them with SQLAlchemy)
 from models.user import User
-from models.product import Product  
+from models.product import Product
 from models.training import TrainingJob
 from models.generation import Generation
 
 # Import routers
-from routers import (
-    auth, products, training, image_generation, 
-    inpainting, users, reports
-)
+from routers import auth, products, training, image_generation, inpainting, users, reports
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
 
 # Initialize FastAPI app
 app = FastAPI(
-    title="AI Model Training Platform",
-    version="1.0.0",
-    description="Platform for training and using custom AI models with sd-scripts and ComfyUI"
+    title=settings.APP_NAME,
+    version=settings.VERSION,
+    description="Platform for training and using custom AI models"
 )
 
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:3001"],
+    allow_origins=settings.ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -107,7 +106,7 @@ async def health_check():
     
     # Check database connection
     try:
-        from database import SessionLocal
+        from app.database import SessionLocal
         db = SessionLocal()
         db.execute(text("SELECT 1"))  # Fixed: wrap in text()
         db.close()
@@ -310,11 +309,11 @@ async def test_workflow_system():
 
 if __name__ == "__main__":
     import uvicorn
-    print("🚀 Starting AI Model Training Platform...")
-    print("📂 Storage directories created")
-    print("🔧 Database tables initialized")
-    print("🎯 Server will be available at: http://localhost:8001")
-    print("📊 Health check: http://localhost:8001/health")
-    print("🔍 System status: http://localhost:8001/api/system/status")
-    
+    print("Starting AI Model Training Platform...")
+    print("Storage directories created")
+    print("Database tables initialized")
+    print("Server will be available at: http://localhost:8001")
+    print("Health check: http://localhost:8001/health")
+    print("System status: http://localhost:8001/api/system/status")
+
     uvicorn.run(app, host="0.0.0.0", port=8001)

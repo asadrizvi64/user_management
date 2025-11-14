@@ -1,44 +1,51 @@
-// vite.config.js
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
 
+// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  
   server: {
     port: 3001,
     host: true,
-    open: true,
-    strictPort: true
+    open: false,
+    strictPort: false,
+    cors: true,
   },
+  
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
-    // Fix case sensitivity issues
-    preserveSymlinks: false,
   },
-  // Fix case sensitivity on Windows
-  esbuild: {
-    loader: 'jsx',
-    include: /src\/.*\.[jt]sx?$/,
-    exclude: []
-  },
-  // Make sure Vite treats .js files as JSX
+  
+  // Fix MUI icons and date-fns optimization issues
   optimizeDeps: {
+    exclude: [
+      '@mui/x-date-pickers',
+      '@mui/x-date-pickers/AdapterDateFns',
+      'date-fns'
+    ],
+    include: [
+      '@mui/material',
+      '@mui/icons-material',
+      'react',
+      'react-dom',
+      'react-router-dom'
+    ],
     esbuildOptions: {
       loader: {
         '.js': 'jsx',
       },
     },
   },
+  
   build: {
     outDir: 'dist',
     sourcemap: true,
-    rollupOptions: {
-      input: {
-        main: path.resolve(__dirname, 'index.html')
-      }
-    }
-  }
+    chunkSizeWarningLimit: 1000,
+  },
+  
+  envPrefix: 'VITE_',
 })

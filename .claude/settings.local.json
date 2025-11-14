@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(timeout 5 python:*)",
+      "Bash(python -m pip install:*)",
+      "Bash(python -c:*)",
+      "Bash(DATABASE_URL=\"sqlite:///./product_training.db\" timeout 5 python:*)",
+      "Bash(DATABASE_URL=\"sqlite:///./product_training.db\" python:*)",
+      "Bash(npm:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

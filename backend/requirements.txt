@@ -1,0 +1,28 @@
+# FastAPI and server
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
+
+# Database
+sqlalchemy==2.0.23
+alembic==1.13.0
+
+# Authentication
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+bcrypt==4.1.1
+
+# HTTP client for ComfyUI
+aiohttp==3.9.1
+websockets==12.0
+
+# Image processing
+Pillow==10.1.0
+
+# Utilities
+python-dotenv==1.0.0
+pydantic==2.5.2
+pydantic-settings==2.1.0
+
+# Training (optional - sd-scripts has its own requirements)
+toml==0.10.2

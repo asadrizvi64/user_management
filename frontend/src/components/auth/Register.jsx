@@ -1,9 +1,14 @@
-// src/components/auth/Register.jsx - FIXED FOR CORS AND REQUEST BODY ISSUES
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
-  Card, CardContent, TextField, Button, Typography, Box,
-  Alert, CircularProgress
+  Card,
+  CardContent,
+  TextField,
+  Button,
+  Typography,
+  Box,
+  Alert,
+  CircularProgress
 } from '@mui/material';
 import { PersonAdd } from '@mui/icons-material';
 
@@ -13,7 +18,8 @@ const Register = () => {
     username: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    full_name: ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -61,152 +67,117 @@ const Register = () => {
       return;
     }
 
-    // Prepare data exactly as backend expects
-    const requestData = {
-      username: formData.username.trim(),
-      email: formData.email.trim(),
-      password: formData.password
-    };
-
-    console.log('=== REGISTRATION DEBUG ===');
-    console.log('Form data:', formData);
-    console.log('Request data:', requestData);
-    console.log('JSON stringify test:', JSON.stringify(requestData));
-
     try {
       const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001';
-      const url = `${API_BASE_URL}/api/auth/register`;
       
-      console.log('Making request to:', url);
+      // Use FormData for backend compatibility
+      const formDataToSend = new FormData();
+      formDataToSend.append('username', formData.username.trim());
+      formDataToSend.append('email', formData.email.trim());
+      formDataToSend.append('password', formData.password);
+      if (formData.full_name) {
+        formDataToSend.append('full_name', formData.full_name.trim());
+      }
 
-      // Try multiple request formats to see which works
-      const requestOptions = {
+      const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          // Add explicit charset
-          'Content-Type': 'application/json; charset=utf-8'
-        },
-        body: JSON.stringify(requestData),
-        // Ensure CORS credentials if needed
-        credentials: 'same-origin'
-      };
-
-      console.log('Request options:', requestOptions);
-
-      const response = await fetch(url, requestOptions);
-
-      console.log('Response status:', response.status);
-      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+        body: formDataToSend,
+      });
 
       if (response.ok) {
         const data = await response.json();
-        console.log('Registration successful:', data);
         
-        // Store token and redirect
+        // If backend returns token, store it
         if (data.access_token) {
           localStorage.setItem('access_token', data.access_token);
+          navigate('/editor');
+        } else {
+          // Otherwise redirect to login
+          navigate('/login', { 
+            state: { message: 'Registration successful! Please log in.' }
+          });
         }
-        
-        navigate('/editor');
       } else {
         const responseText = await response.text();
-        console.error('Error response text:', responseText);
-        
         let errorData;
+        
         try {
           errorData = JSON.parse(responseText);
         } catch (e) {
           errorData = { detail: responseText };
         }
         
-        console.error('Error data:', errorData);
-        
         if (errorData.detail) {
           if (Array.isArray(errorData.detail)) {
-            // Format validation errors nicely
-            const errors = errorData.detail.map(err => `${err.loc ? err.loc[1] : 'field'}: ${err.msg}`).join(', ');
+            const errors = errorData.detail.map(err => 
+              `${err.loc ? err.loc[err.loc.length - 1] : 'field'}: ${err.msg}`
+            ).join(', ');
             setError(`Validation errors: ${errors}`);
           } else {
             setError(errorData.detail);
           }
         } else {
-          setError(`Registration failed (${response.status}): ${responseText}`);
+          setError(`Registration failed (${response.status})`);
         }
       }
     } catch (error) {
-      console.error('Network error:', error);
+      console.error('Registration error:', error);
       setError('Network error: ' + error.message);
     }
     
     setLoading(false);
   };
 
-  // Alternative: Try FormData format (some backends prefer this)
-  const handleSubmitFormData = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-
-    const formDataObj = new FormData();
-    formDataObj.append('username', formData.username.trim());
-    formDataObj.append('email', formData.email.trim());
-    formDataObj.append('password', formData.password);
-
-    console.log('=== FORM DATA ATTEMPT ===');
-    for (let [key, value] of formDataObj.entries()) {
-      console.log(key, value);
-    }
-
-    try {
-      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001';
-      
-      const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
-        method: 'POST',
-        body: formDataObj, // Don't set Content-Type for FormData
-      });
-
-      console.log('FormData response status:', response.status);
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Registration successful with FormData:', data);
-        
-        if (data.access_token) {
-          localStorage.setItem('access_token', data.access_token);
-        }
-        
-        navigate('/editor');
-      } else {
-        const responseText = await response.text();
-        console.error('FormData error response:', responseText);
-        setError(`FormData attempt failed: ${responseText}`);
-      }
-    } catch (error) {
-      console.error('FormData network error:', error);
-      setError('FormData network error: ' + error.message);
-    }
-    
-    setLoading(false);
-  };
-
-  // Demo register function for testing without backend
-  const handleDemoRegister = () => {
-    localStorage.setItem('access_token', 'demo-token');
-    navigate('/editor');
-  };
-
   return (
-    <Card sx={{ width: '100%', maxWidth: 450 }}>
-      <CardContent sx={{ p: 4 }}>
-        <Box sx={{ textAlign: 'center', mb: 3 }}>
-          <PersonAdd sx={{ fontSize: 48, color: 'primary.main', mb: 2 }} />
-          <Typography variant="h4" component="h1" gutterBottom>
+    <Card
+      sx={{
+        maxWidth: 520,
+        width: '100%',
+        background: 'rgba(255, 255, 255, 0.95)',
+        backdropFilter: 'blur(20px)',
+        boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
+        border: '1px solid rgba(255, 255, 255, 0.3)',
+      }}
+    >
+      <CardContent sx={{ p: 5 }}>
+        <Box sx={{ textAlign: 'center', mb: 4 }}>
+          <Box
+            sx={{
+              width: 80,
+              height: 80,
+              margin: '0 auto',
+              mb: 2,
+              background: 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)',
+              borderRadius: '20px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 8px 24px rgba(236, 72, 153, 0.4)',
+              animation: 'float 3s ease-in-out infinite',
+              '@keyframes float': {
+                '0%, 100%': { transform: 'translateY(0px)' },
+                '50%': { transform: 'translateY(-10px)' },
+              },
+            }}
+          >
+            <PersonAdd sx={{ fontSize: 40, color: '#fff' }} />
+          </Box>
+          <Typography
+            variant="h4"
+            component="h1"
+            gutterBottom
+            sx={{
+              fontWeight: 800,
+              background: 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)',
+              backgroundClip: 'text',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+            }}
+          >
             Create Account
           </Typography>
-          <Typography variant="body1" color="textSecondary">
-            Join the Product Training Platform
+          <Typography variant="body1" color="text.secondary" sx={{ fontSize: '1.05rem' }}>
+            Join the AI Training Platform
           </Typography>
         </Box>
 
@@ -216,95 +187,137 @@ const Register = () => {
           </Alert>
         )}
 
-        <Box component="form">
-          <TextField
-            fullWidth
-            label="Username"
-            name="username"
-            value={formData.username}
-            onChange={handleChange}
-            margin="normal"
-            required
-            autoFocus
-            placeholder="e.g. johndoe"
-            helperText="This will be your unique username"
-          />
-
-          <TextField
-            fullWidth
-            label="Email"
-            name="email"
-            type="email"
-            value={formData.email}
-            onChange={handleChange}
-            margin="normal"
-            required
-            autoComplete="email"
-            placeholder="e.g. john@example.com"
-          />
-          
-          <TextField
-            fullWidth
-            label="Password"
-            name="password"
-            type="password"
-            value={formData.password}
-            onChange={handleChange}
-            margin="normal"
-            required
-            autoComplete="new-password"
-            helperText="Must be at least 6 characters"
-          />
-
-          <TextField
-            fullWidth
-            label="Confirm Password"
-            name="confirmPassword"
-            type="password"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            margin="normal"
-            required
-            autoComplete="new-password"
-          />
-
-          <Box sx={{ mt: 3, display: 'flex', flexDirection: 'column', gap: 1 }}>
-            <Button
+        <Box component="form" onSubmit={handleSubmit}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+            <TextField
               fullWidth
-              variant="contained"
-              size="large"
-              onClick={handleSubmit}
-              disabled={loading}
-              startIcon={loading ? <CircularProgress size={20} /> : null}
-            >
-              {loading ? 'Creating Account...' : 'Create Account (JSON)'}
-            </Button>
+              label="Username"
+              name="username"
+              value={formData.username}
+              onChange={handleChange}
+              margin="normal"
+              required
+              autoFocus
+              placeholder="e.g. johndoe"
+              helperText="Unique username"
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  backgroundColor: 'rgba(236, 72, 153, 0.03)',
+                },
+              }}
+            />
 
-            <Button
+            <TextField
               fullWidth
-              variant="outlined"
-              size="large"
-              onClick={handleSubmitFormData}
-              disabled={loading}
-            >
-              Try FormData Format
-            </Button>
-
-            <Button
-              fullWidth
-              variant="outlined"
-              size="large"
-              onClick={handleDemoRegister}
-              sx={{ backgroundColor: 'success.light', color: 'success.contrastText' }}
-            >
-              Demo Register (Skip Backend)
-            </Button>
+              label="Email"
+              name="email"
+              type="email"
+              value={formData.email}
+              onChange={handleChange}
+              margin="normal"
+              required
+              autoComplete="email"
+              placeholder="e.g. john@example.com"
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  backgroundColor: 'rgba(236, 72, 153, 0.03)',
+                },
+              }}
+            />
           </Box>
 
-          <Box sx={{ textAlign: 'center', mt: 2 }}>
+          <TextField
+            fullWidth
+            label="Full Name (Optional)"
+            name="full_name"
+            value={formData.full_name}
+            onChange={handleChange}
+            margin="normal"
+            placeholder="e.g. John Doe"
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                backgroundColor: 'rgba(236, 72, 153, 0.03)',
+              },
+            }}
+          />
+
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+            <TextField
+              fullWidth
+              label="Password"
+              name="password"
+              type="password"
+              value={formData.password}
+              onChange={handleChange}
+              margin="normal"
+              required
+              autoComplete="new-password"
+              helperText="Min. 6 characters"
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  backgroundColor: 'rgba(236, 72, 153, 0.03)',
+                },
+              }}
+            />
+
+            <TextField
+              fullWidth
+              label="Confirm Password"
+              name="confirmPassword"
+              type="password"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              margin="normal"
+              required
+              autoComplete="new-password"
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  backgroundColor: 'rgba(236, 72, 153, 0.03)',
+                },
+              }}
+            />
+          </Box>
+
+          <Button
+            fullWidth
+            variant="contained"
+            size="large"
+            type="submit"
+            disabled={loading}
+            sx={{
+              mt: 4,
+              mb: 2,
+              py: 1.5,
+              fontSize: '1.05rem',
+              background: 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)',
+              boxShadow: '0 4px 12px rgba(236, 72, 153, 0.4)',
+              '&:hover': {
+                background: 'linear-gradient(135deg, #db2777 0%, #7c3aed 100%)',
+                boxShadow: '0 6px 20px rgba(236, 72, 153, 0.5)',
+              },
+            }}
+          >
+            {loading ? (
+              <>
+                <CircularProgress size={20} sx={{ mr: 1, color: '#fff' }} />
+                Creating Account...
+              </>
+            ) : (
+              'Create Account'
+            )}
+          </Button>
+
+          <Box sx={{ textAlign: 'center' }}>
             <Typography variant="body2">
               Already have an account?{' '}
-              <Link to="/login" style={{ color: '#1976d2', textDecoration: 'none' }}>
+              <Link
+                to="/login"
+                style={{
+                  color: '#ec4899',
+                  textDecoration: 'none',
+                  fontWeight: 600
+                }}
+              >
                 Sign in here
               </Link>
             </Typography>

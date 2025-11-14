@@ -1,10 +1,8 @@
 from sqlalchemy import Column, Integer, String, DateTime, Text, ForeignKey, JSON, Float, Enum
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
+from datetime import datetime
 import enum
 from app.database import Base
-
-# Base = declarative_base()
 
 class TrainingStatus(enum.Enum):
     PENDING = "pending"
@@ -27,7 +25,7 @@ class TrainingJob(Base):
     message = Column(Text)  # Status message
     logs = Column(Text)  # Training logs
     created_by = Column(Integer, ForeignKey("users.id"), nullable=False)
-    created_at = Column(DateTime)
+    created_at = Column(DateTime, default=datetime.utcnow)
     started_at = Column(DateTime)
     completed_at = Column(DateTime)
     
@@ -41,4 +39,4 @@ class TrainingDataset(Base):
     training_job_id = Column(Integer, ForeignKey("training_jobs.id"), nullable=False)
     image_path = Column(String(500), nullable=False)
     caption = Column(Text, nullable=False)
-    uploaded_at = Column(DateTime)
+    uploaded_at = Column(DateTime, default=datetime.utcnow)

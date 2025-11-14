@@ -1,9 +1,7 @@
 from sqlalchemy import Column, Integer, String, DateTime, Text, ForeignKey, JSON, Float
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
+from datetime import datetime
 from app.database import Base
-
-# Base = declarative_base()
 
 class Generation(Base):
     __tablename__ = "generations"
@@ -17,7 +15,7 @@ class Generation(Base):
     execution_time = Column(Float)  # In seconds
     cost = Column(Float)  # GPU cost
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    created_at = Column(DateTime)
+    created_at = Column(DateTime, default=datetime.utcnow)
     
     # Relationships
     user = relationship("User", back_populates="generations")
