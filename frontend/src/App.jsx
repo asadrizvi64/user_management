@@ -4,7 +4,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { CssBaseline, Box } from '@mui/material';
 
 // Auth
-import { AuthProvider, useAuth } from './hooks/useAuth';
+import { AuthProvider, useAuth } from './hooks/useAuth.jsx';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import ProtectedRoute from './components/auth/ProtectedRoute';
@@ -293,6 +293,7 @@ const AuthLayout = ({ children }) => {
 
 // Main App Component
 const App = () => {
+  console.log('App component is rendering!');
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />

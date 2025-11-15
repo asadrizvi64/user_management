@@ -6,7 +6,16 @@
       "Bash(python -c:*)",
       "Bash(DATABASE_URL=\"sqlite:///./product_training.db\" timeout 5 python:*)",
       "Bash(DATABASE_URL=\"sqlite:///./product_training.db\" python:*)",
-      "Bash(npm:*)"
+      "Bash(npm:*)",
+      "Bash(move useAuth.js useAuth.jsx)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(timeout:*)",
+      "Bash(if exist .env type .env)",
+      "Bash(curl:*)",
+      "Bash(dir:*)",
+      "Bash(taskkill:*)",
+      "Bash(del test_output.html)"
     ],
     "deny": [],
     "ask": []

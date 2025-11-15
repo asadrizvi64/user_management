@@ -12,7 +12,7 @@ import {
   Divider
 } from '@mui/material';
 import { LockOpen } from '@mui/icons-material';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../hooks/useAuth.jsx';
 
 export default function Login() {
   const navigate = useNavigate();

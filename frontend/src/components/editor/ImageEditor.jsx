@@ -17,7 +17,7 @@ import BrushIcon from '@mui/icons-material/Brush';
 import CategoryIcon from '@mui/icons-material/Category';
 import HistoryIcon from '@mui/icons-material/History';
 import AssessmentIcon from '@mui/icons-material/Assessment';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../hooks/useAuth.jsx';
 
 export default function ImageEditor() {
   const navigate = useNavigate();

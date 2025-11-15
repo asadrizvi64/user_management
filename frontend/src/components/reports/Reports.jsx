@@ -3,7 +3,7 @@ import {
   Container, Typography, Box, Tabs, Tab, Alert
 } from '@mui/material';
 import { Assessment, TrendingUp, People } from '@mui/icons-material';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../hooks/useAuth.jsx';
 import ActivityReport from './ActivityReport';
 import CostAnalysis from './CostAnalysis';
 

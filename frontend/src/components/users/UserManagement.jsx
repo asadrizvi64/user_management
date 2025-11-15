@@ -3,7 +3,7 @@ import {
   Container, Typography, Box, Button, Alert, Tabs, Tab
 } from '@mui/material';
 import { Add, People, AdminPanelSettings } from '@mui/icons-material';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../hooks/useAuth.jsx';
 import UserList from './UserList';
 import UserForm from './UserForm';
 

@@ -12,6 +12,7 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
+  console.log('AuthProvider is initializing!');
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 

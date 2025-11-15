@@ -10,7 +10,7 @@ import {
   PhotoLibrary, Public, Lock, Search
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../hooks/useAuth.jsx';
 import { productService } from '../../services/productService';
 import CreateProduct from './CreateProduct';
 

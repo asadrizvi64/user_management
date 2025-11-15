@@ -9,7 +9,7 @@ import {
   History, Assessment, Brush, AdminPanelSettings  // Changed Admin to AdminPanelSettings
 } from '@mui/icons-material';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../hooks/useAuth.jsx';
 
 const drawerWidth = 260;
 
