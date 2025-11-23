@@ -33,6 +33,7 @@ export default defineConfig({
       '@mui/material',
       '@mui/icons-material',
       '@mui/system',
+      '@mui/system/colorManipulator',
       'react',
       'react-dom',
       'react-router-dom',
