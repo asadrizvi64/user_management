@@ -24,11 +24,6 @@ export default defineConfig({
   
   // Fix MUI icons and date-fns optimization issues
   optimizeDeps: {
-    exclude: [
-      '@mui/x-date-pickers',
-      '@mui/x-date-pickers/AdapterDateFns',
-      'date-fns'
-    ],
     include: [
       '@mui/material',
       '@mui/icons-material',
@@ -36,6 +31,10 @@ export default defineConfig({
       '@mui/system/colorManipulator',
       '@mui/system/createStyled',
       '@mui/system/useThemeWithoutDefault',
+      '@mui/x-date-pickers',
+      '@mui/x-date-pickers/AdapterDateFns',
+      'date-fns',
+      'date-fns/_lib/format/longFormatters/index',
       'react',
       'react-dom',
       'react-router-dom',
