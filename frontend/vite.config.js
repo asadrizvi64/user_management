@@ -36,7 +36,8 @@ export default defineConfig({
       'react-dom',
       'react-router-dom',
       'prop-types',
-      'hoist-non-react-statics'
+      'hoist-non-react-statics',
+      'react-is'
     ],
     esbuildOptions: {
       loader: {
