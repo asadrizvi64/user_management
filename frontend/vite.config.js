@@ -35,6 +35,7 @@ export default defineConfig({
       '@mui/system',
       '@mui/system/colorManipulator',
       '@mui/system/createStyled',
+      '@mui/system/useThemeWithoutDefault',
       'react',
       'react-dom',
       'react-router-dom',
