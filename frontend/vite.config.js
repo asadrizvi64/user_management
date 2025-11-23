@@ -32,6 +32,7 @@ export default defineConfig({
     include: [
       '@mui/material',
       '@mui/icons-material',
+      '@mui/system',
       'react',
       'react-dom',
       'react-router-dom',
