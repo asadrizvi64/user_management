@@ -34,7 +34,8 @@ export default defineConfig({
       '@mui/icons-material',
       'react',
       'react-dom',
-      'react-router-dom'
+      'react-router-dom',
+      'prop-types'
     ],
     esbuildOptions: {
       loader: {
