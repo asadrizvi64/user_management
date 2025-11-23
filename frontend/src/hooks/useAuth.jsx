@@ -60,21 +60,27 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const login = async (email, password) => {
+  const login = async (credentials) => {
     try {
       const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001';
+
+      // Backend uses OAuth2PasswordRequestForm which expects form data
+      const formData = new URLSearchParams();
+      formData.append('username', credentials.username);
+      formData.append('password', credentials.password);
+
       const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: JSON.stringify({ email, password }),
+        body: formData,
       });
 
       if (response.ok) {
         const data = await response.json();
         localStorage.setItem('access_token', data.access_token);
-        setUser(data.user || { email: email });
+        setUser(data.user || { username: credentials.username });
         return { success: true };
       } else if (response.status === 404) {
         return { success: false, error: 'Login endpoint not implemented yet. Use registration or demo login.' };

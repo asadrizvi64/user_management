@@ -42,8 +42,12 @@ export default function Login() {
     setLoading(true);
 
     try {
-      await login(formData);
-      navigate('/editor');
+      const result = await login(formData);
+      if (result.success) {
+        navigate('/editor');
+      } else {
+        setError(result.error || 'Login failed. Please check your credentials.');
+      }
     } catch (err) {
       console.error('Login error:', err);
       setError(err.response?.data?.detail || 'Login failed. Please check your credentials.');
