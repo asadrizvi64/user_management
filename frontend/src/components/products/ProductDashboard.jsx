@@ -136,6 +136,7 @@ const ProductDashboard = () => {
   };
 
   const canManageProduct = (product) => {
+    if (!product || !user) return false;
     return isAdmin || product.created_by === user.id;
   };
 
