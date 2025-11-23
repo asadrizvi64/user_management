@@ -34,7 +34,12 @@ export default defineConfig({
       '@mui/icons-material',
       'react',
       'react-dom',
-      'react-router-dom'
+      'react-router-dom',
+      'prop-types',
+      'hoist-non-react-statics',
+      '@emotion/react',
+      '@emotion/styled',
+      '@emotion/react > hoist-non-react-statics'
     ],
     esbuildOptions: {
       loader: {
@@ -42,11 +47,14 @@ export default defineConfig({
       },
     },
   },
-  
+
   build: {
     outDir: 'dist',
     sourcemap: true,
     chunkSizeWarningLimit: 1000,
+    commonjsOptions: {
+      transformMixedEsModules: true,
+    },
   },
   
   envPrefix: 'VITE_',
