@@ -25,8 +25,20 @@ class Settings:
     # Training settings
     MAX_TRAINING_IMAGES: int = int(os.getenv("MAX_TRAINING_IMAGES", "150"))
     DEFAULT_TRAINING_RESOLUTION: int = int(os.getenv("DEFAULT_TRAINING_RESOLUTION", "512"))
-    
+
     # GPU settings
     CUDA_VISIBLE_DEVICES: str = os.getenv("CUDA_VISIBLE_DEVICES", "0")
+    GPU_MEMORY_THRESHOLD: float = float(os.getenv("GPU_MEMORY_THRESHOLD", "0.8"))  # 80% threshold for fallback
+
+    # Cloud GPU Services
+    # fal.ai settings
+    FAL_KEY: str = os.getenv("FAL_KEY", "")
+    FAL_DEPLOYMENT_ENABLED: bool = os.getenv("FAL_DEPLOYMENT_ENABLED", "false").lower() == "true"
+
+    # RunPod settings
+    RUNPOD_API_KEY: str = os.getenv("RUNPOD_API_KEY", "")
+    RUNPOD_GPU_TYPE: str = os.getenv("RUNPOD_GPU_TYPE", "NVIDIA RTX A4000")
+    RUNPOD_ENABLED: bool = os.getenv("RUNPOD_ENABLED", "false").lower() == "true"
+    RUNPOD_DOCKER_IMAGE: str = os.getenv("RUNPOD_DOCKER_IMAGE", "runpod/pytorch:2.1.0-py3.10-cuda11.8.0-devel")
 
 settings = Settings()
