@@ -16,10 +16,37 @@ from schemas.training import (
     TrainingParams, AutoCaptionRequest, AutoCaptionResponse
 )
 from services.training_service import TrainingService
+from services.gpu_manager import GPUManager
 from core.security import get_current_user
 from utils.file_handler import save_uploaded_file
 
 router = APIRouter()
+
+@router.get("/gpu-status")
+async def get_gpu_status(
+    current_user: User = Depends(get_current_user)
+):
+    """Get current GPU status and recommended training provider"""
+
+    gpu_manager = GPUManager()
+    gpu_status = gpu_manager.get_gpu_status()
+    system_resources = gpu_manager.get_system_resources()
+
+    # Determine recommended provider
+    recommended_provider = "local"
+    if gpu_status["should_use_cloud"]:
+        recommended_provider = "cloud"
+
+    return {
+        "gpu_status": gpu_status,
+        "system_resources": system_resources,
+        "recommended_provider": recommended_provider,
+        "providers_available": {
+            "local": gpu_status["can_train_locally"],
+            "runpod": True,  # Always available if API key configured
+            "fal": True      # Always available if API key configured
+        }
+    }
 
 @router.post("/start", response_model=TrainingJobResponse)
 async def start_training(
@@ -30,10 +57,11 @@ async def start_training(
     training_params: str = Form(...),  # JSON string
     images: List[UploadFile] = File(...),
     captions: str = Form(...),  # JSON array string
+    provider: Optional[str] = Form(None),  # Optional: 'local', 'runpod', or 'fal'
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Start training a new product model"""
+    """Start training a new product model with specified or auto-selected provider"""
     
     try:
         # Parse parameters
@@ -85,7 +113,8 @@ async def start_training(
             image_paths,
             caption_list,
             params,
-            current_user.id
+            current_user.id,
+            provider  # Pass provider selection
         )
         
         return TrainingJobResponse(

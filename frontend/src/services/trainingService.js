@@ -58,6 +58,12 @@ export const trainingService = {
     return response.data;
   },
 
+  // Get GPU status and recommended provider
+  async getGpuStatus() {
+    const response = await api.get('/api/training/gpu-status');
+    return response.data;
+  },
+
   // Stream training progress
   createProgressStream(jobId) {
     return new EventSource(`${api.defaults.baseURL}/api/training/jobs/${jobId}/progress`);

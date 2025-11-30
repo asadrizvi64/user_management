@@ -28,12 +28,14 @@ const ProductTraining = () => {
     networkDim: 4,
     vram: '20G',
     numRepeats: 10,
-    sampleEveryNSteps: 0
+    sampleEveryNSteps: 0,
+    provider: 'auto'  // 'auto', 'local', 'runpod', 'fal'
   });
-  
+
   const [images, setImages] = useState([]);
   const [captions, setCaptions] = useState([]);
   const [baseModels, setBaseModels] = useState({});
+  const [gpuStatus, setGpuStatus] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -42,6 +44,7 @@ const ProductTraining = () => {
   // Load data on component mount
   useEffect(() => {
     loadBaseModels();
+    loadGpuStatus();
     if (productId) {
       loadProductData();
     }
@@ -53,6 +56,16 @@ const ProductTraining = () => {
       setBaseModels(response.models);
     } catch (error) {
       setError('Failed to load base models');
+    }
+  };
+
+  const loadGpuStatus = async () => {
+    try {
+      const response = await trainingService.getGpuStatus();
+      setGpuStatus(response);
+    } catch (error) {
+      console.error('Failed to load GPU status:', error);
+      // Don't show error to user, GPU status is optional info
     }
   };
 
@@ -152,6 +165,11 @@ const ProductTraining = () => {
       }));
       trainingFormData.append('captions', JSON.stringify(captions));
 
+      // Add provider selection (only if not 'auto')
+      if (formData.provider !== 'auto') {
+        trainingFormData.append('provider', formData.provider);
+      }
+
       // Add images
       images.forEach(image => trainingFormData.append('images', image));
 
@@ -230,6 +248,63 @@ const ProductTraining = () => {
                 <MenuItem value="16G">16GB</MenuItem>
                 <MenuItem value="20G">20GB+</MenuItem>
               </Select>
+            </FormControl>
+
+            {/* GPU Status Display */}
+            {gpuStatus && (
+              <Box sx={{ mt: 2, p: 2, bgcolor: 'background.paper', borderRadius: 1, border: '1px solid #e0e0e0' }}>
+                <Typography variant="subtitle2" gutterBottom>
+                  GPU Status
+                </Typography>
+                {gpuStatus.gpu_status.available ? (
+                  <>
+                    <Typography variant="body2" color="text.secondary">
+                      {gpuStatus.gpu_status.gpu_count} GPU(s) detected
+                    </Typography>
+                    {gpuStatus.gpu_status.gpus.map((gpu, idx) => (
+                      <Typography key={idx} variant="caption" display="block">
+                        {gpu.name}: {gpu.memory_free}MB free / {gpu.memory_total}MB total
+                      </Typography>
+                    ))}
+                    <Chip
+                      label={gpuStatus.gpu_status.can_train_locally ? "GPU Available" : "GPU Busy"}
+                      color={gpuStatus.gpu_status.can_train_locally ? "success" : "warning"}
+                      size="small"
+                      sx={{ mt: 1 }}
+                    />
+                  </>
+                ) : (
+                  <Chip label="No GPU Detected" color="warning" size="small" />
+                )}
+              </Box>
+            )}
+
+            {/* Provider Selection */}
+            <FormControl fullWidth margin="normal">
+              <InputLabel>Training Provider</InputLabel>
+              <Select
+                value={formData.provider}
+                onChange={(e) => setFormData(prev => ({ ...prev, provider: e.target.value }))}
+              >
+                <MenuItem value="auto">
+                  Auto (Recommended: {gpuStatus?.recommended_provider === 'local' ? 'Local GPU' : 'Cloud'})
+                </MenuItem>
+                <MenuItem value="local" disabled={gpuStatus && !gpuStatus.gpu_status.available}>
+                  Local GPU (FluxGym/Kohya)
+                </MenuItem>
+                <MenuItem value="runpod">
+                  RunPod (Cloud GPU)
+                </MenuItem>
+                <MenuItem value="fal">
+                  fal.ai (Cloud Training)
+                </MenuItem>
+              </Select>
+              <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
+                {formData.provider === 'auto' && 'Automatically selects best provider based on GPU availability'}
+                {formData.provider === 'local' && 'Uses local GPU with FluxGym/Kohya (free, faster)'}
+                {formData.provider === 'runpod' && 'Rents cloud GPU on RunPod (pay per minute)'}
+                {formData.provider === 'fal' && 'Uses fal.ai managed training (pay per job)'}
+              </Typography>
             </FormControl>
           </Paper>
         </Grid>
