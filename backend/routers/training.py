@@ -280,7 +280,7 @@ async def get_base_models():
 @router.get("/training-params")
 async def get_default_training_params():
     """Get default training parameters"""
-    
+
     return {
         "params": {
             "resolution": 512,
@@ -297,3 +297,103 @@ async def get_default_training_params():
             "sample_every_n_steps": 0
         }
     }
+
+# Cloud GPU Integration Endpoints
+
+@router.get("/gpu-status")
+async def get_gpu_status(
+    current_user: User = Depends(get_current_user)
+):
+    """Get current GPU status and cloud provider decision"""
+
+    training_service = TrainingService()
+    status = training_service.get_gpu_status()
+
+    return status
+
+@router.get("/system-status")
+async def get_system_status(
+    current_user: User = Depends(get_current_user)
+):
+    """Get complete training system status including cloud services"""
+
+    training_service = TrainingService()
+    status = training_service.get_system_status()
+
+    return status
+
+@router.post("/deploy-to-fal")
+async def deploy_to_fal(
+    product_name: str = Form(...),
+    trigger_word: str = Form(...),
+    metadata: Optional[str] = Form(None),  # JSON string
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Deploy trained model to fal.ai for inference"""
+
+    try:
+        # Parse metadata if provided
+        metadata_dict = json.loads(metadata) if metadata else None
+
+        training_service = TrainingService()
+        result = await training_service.deploy_to_fal(
+            product_name=product_name,
+            trigger_word=trigger_word,
+            user_id=current_user.id,
+            metadata=metadata_dict
+        )
+
+        if result["success"]:
+            return result
+        else:
+            raise HTTPException(500, result.get("error", "Deployment failed"))
+
+    except json.JSONDecodeError:
+        raise HTTPException(400, "Invalid JSON in metadata")
+    except Exception as e:
+        raise HTTPException(500, f"Failed to deploy to fal.ai: {str(e)}")
+
+@router.post("/generate-with-fal")
+async def generate_with_fal(
+    product_name: str = Form(...),
+    prompt: str = Form(...),
+    num_images: int = Form(1),
+    image_size: str = Form("landscape_4_3"),
+    num_inference_steps: int = Form(28),
+    guidance_scale: float = Form(3.5),
+    lora_scale: float = Form(1.0),
+    current_user: User = Depends(get_current_user)
+):
+    """Generate image using fal.ai deployed model"""
+
+    try:
+        training_service = TrainingService()
+        result = await training_service.generate_with_fal(
+            product_name=product_name,
+            prompt=prompt,
+            num_images=num_images,
+            image_size=image_size,
+            num_inference_steps=num_inference_steps,
+            guidance_scale=guidance_scale,
+            lora_scale=lora_scale
+        )
+
+        if result["success"]:
+            return result
+        else:
+            raise HTTPException(500, result.get("error", "Generation failed"))
+
+    except Exception as e:
+        raise HTTPException(500, f"Failed to generate image: {str(e)}")
+
+@router.get("/deployed-models")
+async def get_deployed_models(
+    current_user: User = Depends(get_current_user)
+):
+    """Get list of all models deployed to fal.ai"""
+
+    training_service = TrainingService()
+    models = training_service.get_deployed_models()
+
+    return {"models": models}

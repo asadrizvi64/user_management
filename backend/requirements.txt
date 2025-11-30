@@ -26,3 +26,12 @@ pydantic-settings==2.1.0
 
 # Training (optional - sd-scripts has its own requirements)
 toml==0.10.2
+python-slugify==8.0.1
+
+# Cloud GPU services
+fal-client==0.4.1
+runpod==1.5.1
+
+# GPU utilities
+GPUtil==1.4.0
+psutil==5.9.6
