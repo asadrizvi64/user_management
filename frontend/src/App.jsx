@@ -34,77 +34,77 @@ import History from './components/history/History';
 import UserManagement from './components/users/UserManagement';
 import Reports from './components/reports/Reports';
 
-// Professional SaaS Theme - Minimal, Clean, Easy to Use
+// Bold Dark Mode Theme with Statement Design
 const theme = createTheme({
   palette: {
-    mode: 'light',
+    mode: 'dark',
     primary: {
-      main: '#2563eb', // Professional Blue
-      light: '#3b82f6',
-      dark: '#1e40af',
+      main: '#8b5cf6', // Vibrant Purple
+      light: '#a78bfa',
+      dark: '#7c3aed',
       contrastText: '#ffffff',
     },
     secondary: {
-      main: '#475569', // Slate Gray
-      light: '#64748b',
-      dark: '#334155',
+      main: '#ec4899', // Hot Pink
+      light: '#f472b6',
+      dark: '#db2777',
       contrastText: '#ffffff',
     },
     success: {
-      main: '#059669',
-      light: '#10b981',
-      dark: '#047857',
+      main: '#10b981',
+      light: '#34d399',
+      dark: '#059669',
     },
     warning: {
-      main: '#d97706',
-      light: '#f59e0b',
-      dark: '#b45309',
+      main: '#f59e0b',
+      light: '#fbbf24',
+      dark: '#d97706',
     },
     error: {
-      main: '#dc2626',
-      light: '#ef4444',
-      dark: '#b91c1c',
+      main: '#ef4444',
+      light: '#f87171',
+      dark: '#dc2626',
     },
     info: {
-      main: '#0891b2',
-      light: '#06b6d4',
-      dark: '#0e7490',
+      main: '#3b82f6',
+      light: '#60a5fa',
+      dark: '#2563eb',
     },
     background: {
-      default: '#fafafa',
-      paper: '#ffffff',
+      default: '#0a0a0f',
+      paper: '#14141b',
     },
     text: {
-      primary: '#0f172a',
-      secondary: '#475569',
+      primary: '#ffffff',
+      secondary: '#a1a1aa',
     },
-    divider: '#e2e8f0',
+    divider: 'rgba(255, 255, 255, 0.1)',
   },
   typography: {
-    fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    fontFamily: '"Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
     h1: {
-      fontWeight: 700,
-      fontSize: '2.5rem',
+      fontWeight: 900,
+      fontSize: '3rem',
+      lineHeight: 1.1,
+      letterSpacing: '-0.03em',
+    },
+    h2: {
+      fontWeight: 800,
+      fontSize: '2.25rem',
       lineHeight: 1.2,
       letterSpacing: '-0.025em',
     },
-    h2: {
+    h3: {
       fontWeight: 700,
-      fontSize: '2rem',
+      fontSize: '1.875rem',
       lineHeight: 1.25,
       letterSpacing: '-0.02em',
     },
-    h3: {
-      fontWeight: 600,
-      fontSize: '1.75rem',
+    h4: {
+      fontWeight: 700,
+      fontSize: '1.5rem',
       lineHeight: 1.3,
       letterSpacing: '-0.015em',
-    },
-    h4: {
-      fontWeight: 600,
-      fontSize: '1.5rem',
-      lineHeight: 1.35,
-      letterSpacing: '-0.01em',
     },
     h5: {
       fontWeight: 600,
@@ -141,56 +141,59 @@ const theme = createTheme({
     },
   },
   shape: {
-    borderRadius: 8,
+    borderRadius: 16,
   },
   shadows: [
     'none',
-    '0 1px 2px 0 rgb(0 0 0 / 0.04)',
-    '0 1px 3px 0 rgb(0 0 0 / 0.06)',
-    '0 2px 4px 0 rgb(0 0 0 / 0.06)',
-    '0 4px 6px -1px rgb(0 0 0 / 0.08)',
-    '0 10px 15px -3px rgb(0 0 0 / 0.08)',
-    '0 20px 25px -5px rgb(0 0 0 / 0.08)',
-    '0 25px 50px -12px rgb(0 0 0 / 0.15)',
-    '0 25px 50px -12px rgb(0 0 0 / 0.15)',
-    '0 25px 50px -12px rgb(0 0 0 / 0.15)',
-    '0 25px 50px -12px rgb(0 0 0 / 0.15)',
-    '0 25px 50px -12px rgb(0 0 0 / 0.15)',
+    '0 0 20px rgba(139, 92, 246, 0.1)',
+    '0 0 30px rgba(139, 92, 246, 0.15)',
+    '0 0 40px rgba(139, 92, 246, 0.2)',
+    '0 10px 40px rgba(139, 92, 246, 0.25)',
+    '0 15px 50px rgba(139, 92, 246, 0.3)',
+    '0 20px 60px rgba(139, 92, 246, 0.35)',
+    '0 25px 70px rgba(139, 92, 246, 0.4)',
+    '0 30px 80px rgba(139, 92, 246, 0.45)',
+    '0 35px 90px rgba(139, 92, 246, 0.5)',
+    '0 40px 100px rgba(139, 92, 246, 0.55)',
+    '0 45px 110px rgba(139, 92, 246, 0.6)',
   ],
   components: {
     MuiButton: {
       styleOverrides: {
         root: {
           textTransform: 'none',
-          borderRadius: 6,
-          padding: '9px 20px',
-          fontSize: '0.9375rem',
-          fontWeight: 500,
+          borderRadius: 12,
+          padding: '12px 28px',
+          fontSize: '1rem',
+          fontWeight: 700,
           boxShadow: 'none',
-          transition: 'all 0.15s ease',
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           '&:hover': {
-            boxShadow: 'none',
-            transform: 'none',
+            transform: 'translateY(-2px)',
+            boxShadow: '0 10px 40px rgba(139, 92, 246, 0.4)',
           },
         },
         contained: {
+          background: 'linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%)',
           '&:hover': {
-            boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+            background: 'linear-gradient(135deg, #7c3aed 0%, #db2777 100%)',
           },
         },
         outlined: {
-          borderWidth: '1.5px',
+          borderWidth: '2px',
+          borderColor: '#8b5cf6',
           '&:hover': {
-            borderWidth: '1.5px',
-            backgroundColor: 'rgba(0, 0, 0, 0.02)',
+            borderWidth: '2px',
+            backgroundColor: 'rgba(139, 92, 246, 0.1)',
+            borderColor: '#a78bfa',
           },
         },
         sizeLarge: {
-          padding: '11px 24px',
-          fontSize: '1rem',
+          padding: '16px 36px',
+          fontSize: '1.125rem',
         },
         sizeSmall: {
-          padding: '6px 16px',
+          padding: '8px 20px',
           fontSize: '0.875rem',
         },
       },
@@ -198,10 +201,16 @@ const theme = createTheme({
     MuiCard: {
       styleOverrides: {
         root: {
-          borderRadius: 10,
-          boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.06)',
-          border: '1px solid #e2e8f0',
-          transition: 'all 0.2s ease',
+          borderRadius: 20,
+          background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(236, 72, 153, 0.05) 100%)',
+          backdropFilter: 'blur(20px)',
+          border: '1px solid rgba(139, 92, 246, 0.2)',
+          boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          '&:hover': {
+            transform: 'translateY(-4px)',
+            boxShadow: '0 30px 80px rgba(139, 92, 246, 0.3)',
+          },
         },
       },
     },
@@ -209,20 +218,26 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           '& .MuiOutlinedInput-root': {
-            borderRadius: 6,
-            transition: 'all 0.15s ease',
+            borderRadius: 12,
+            background: 'rgba(255, 255, 255, 0.05)',
+            backdropFilter: 'blur(10px)',
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             '& .MuiOutlinedInput-notchedOutline': {
-              borderColor: '#e2e8f0',
+              borderColor: 'rgba(139, 92, 246, 0.3)',
+              borderWidth: '2px',
             },
             '&:hover': {
+              background: 'rgba(255, 255, 255, 0.08)',
               '& .MuiOutlinedInput-notchedOutline': {
-                borderColor: '#cbd5e1',
+                borderColor: 'rgba(139, 92, 246, 0.5)',
               },
             },
             '&.Mui-focused': {
+              background: 'rgba(255, 255, 255, 0.08)',
+              boxShadow: '0 0 0 4px rgba(139, 92, 246, 0.2)',
               '& .MuiOutlinedInput-notchedOutline': {
-                borderWidth: '1.5px',
-                borderColor: '#2563eb',
+                borderWidth: '2px',
+                borderColor: '#8b5cf6',
               },
             },
           },
@@ -232,9 +247,11 @@ const theme = createTheme({
     MuiChip: {
       styleOverrides: {
         root: {
-          borderRadius: 6,
-          fontWeight: 500,
-          fontSize: '0.8125rem',
+          borderRadius: 10,
+          fontWeight: 600,
+          fontSize: '0.875rem',
+          background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(236, 72, 153, 0.2))',
+          border: '1px solid rgba(139, 92, 246, 0.3)',
         },
       },
     },
@@ -242,26 +259,54 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           backgroundImage: 'none',
+          background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(236, 72, 153, 0.04) 100%)',
+          backdropFilter: 'blur(20px)',
+          border: '1px solid rgba(139, 92, 246, 0.2)',
         },
         elevation1: {
-          boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.04)',
+          boxShadow: '0 10px 40px rgba(0, 0, 0, 0.3)',
         },
       },
     },
     MuiAppBar: {
       styleOverrides: {
         root: {
-          boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.04)',
+          background: 'linear-gradient(135deg, #14141b 0%, #1a1a24 100%)',
+          borderBottom: '1px solid rgba(139, 92, 246, 0.2)',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.5)',
+        },
+      },
+    },
+    MuiDrawer: {
+      styleOverrides: {
+        paper: {
+          background: 'linear-gradient(180deg, #14141b 0%, #1a1a24 100%)',
+          borderRight: '1px solid rgba(139, 92, 246, 0.2)',
         },
       },
     },
   },
 });
 
-// Clean Layout component with professional spacing
+// Bold Dark Layout with Statement Design
 const Layout = ({ children }) => {
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', backgroundColor: '#fafafa' }}>
+    <Box sx={{
+      display: 'flex',
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #0a0a0f 0%, #14141b 50%, #1a1a24 100%)',
+      position: 'relative',
+      '&::before': {
+        content: '""',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: 'radial-gradient(circle at 20% 50%, rgba(139, 92, 246, 0.15) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(236, 72, 153, 0.15) 0%, transparent 50%)',
+        pointerEvents: 'none',
+      }
+    }}>
       <Header />
       <Sidebar />
       <Box
@@ -269,11 +314,11 @@ const Layout = ({ children }) => {
         sx={{
           flexGrow: 1,
           p: { xs: 3, sm: 4, md: 5 },
-          width: { sm: `calc(100% - 240px)` },
-          ml: { sm: '240px' },
+          width: '100%',
           mt: '64px',
-          backgroundColor: '#fafafa',
           minHeight: 'calc(100vh - 64px)',
+          position: 'relative',
+          zIndex: 1,
         }}
       >
         <Box sx={{ maxWidth: '1600px', mx: 'auto' }}>
@@ -284,7 +329,7 @@ const Layout = ({ children }) => {
   );
 };
 
-// Clean Auth layout with professional aesthetic
+// Bold Dark Auth Layout with Statement Design
 const AuthLayout = ({ children }) => {
   return (
     <Box
@@ -293,16 +338,37 @@ const AuthLayout = ({ children }) => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#fafafa',
-        backgroundImage: `
-          radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.08) 0px, transparent 50%),
-          radial-gradient(at 100% 100%, rgba(37, 99, 235, 0.06) 0px, transparent 50%)
-        `,
+        background: 'linear-gradient(135deg, #0a0a0f 0%, #14141b 50%, #1a1a24 100%)',
         position: 'relative',
         px: 2,
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: `
+            radial-gradient(circle at 20% 20%, rgba(139, 92, 246, 0.4) 0%, transparent 40%),
+            radial-gradient(circle at 80% 80%, rgba(236, 72, 153, 0.4) 0%, transparent 40%),
+            radial-gradient(circle at 40% 80%, rgba(59, 130, 246, 0.3) 0%, transparent 40%)
+          `,
+          animation: 'pulseGlow 8s ease-in-out infinite',
+        },
+        '&::after': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'radial-gradient(circle at 50% 50%, transparent 0%, rgba(10, 10, 15, 0.8) 100%)',
+        },
       }}
     >
-      {children}
+      <Box sx={{ position: 'relative', zIndex: 1 }}>
+        {children}
+      </Box>
     </Box>
   );
 };
