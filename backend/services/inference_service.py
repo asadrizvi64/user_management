@@ -9,19 +9,23 @@ from sqlalchemy.orm import Session
 
 from .comfyui_client import ComfyUIClient
 from .workflow_manager import WorkflowManager
+from .gpu_manager import GPUManager
+from .fal_service import FALService
 from models.generation import Generation
 from models.product import Product
 
 logger = logging.getLogger(__name__)
 
 class InferenceService:
-    """Handles all inference operations using ComfyUI with your exact workflows"""
-    
+    """Handles all inference operations using ComfyUI or cloud providers with automatic GPU fallback"""
+
     def __init__(self, comfyui_url: str = "http://127.0.0.1:8188"):
         self.client = ComfyUIClient(comfyui_url, comfyui_url.replace("http", "ws"))
         self.workflow_manager = WorkflowManager()  # Use your workflow manager
         self.storage_path = Path("storage")
         self.comfyui_models_path = self._find_comfyui_models_path()
+        self.gpu_manager = GPUManager()
+        self.fal_service = FALService()
     
     def _find_comfyui_models_path(self) -> Optional[Path]:
         """Try to find ComfyUI models directory"""
@@ -88,13 +92,65 @@ class InferenceService:
         seed: int = -1,
         num_images: int = 1,
         db: Session = None,
-        user_id: int = None
+        user_id: int = None,
+        force_provider: Optional[str] = None  # 'local', 'fal', or None for auto
     ) -> Dict[str, Any]:
-        """Generate images using ComfyUI (basic text-to-image for now)"""
-        
+        """Generate images using ComfyUI or cloud providers with automatic GPU fallback"""
+
         start_time = time.time()
         generated_images = []
-        
+
+        # Determine which provider to use
+        use_cloud = False
+        provider_used = "local"
+
+        if force_provider == "fal":
+            use_cloud = True
+            provider_used = "fal"
+        elif force_provider != "local":  # Auto mode
+            # Check GPU availability
+            gpu_occupied = self.gpu_manager.is_gpu_occupied_for_inference()
+
+            # Check ComfyUI availability
+            comfyui_available = False
+            try:
+                # Quick health check
+                await asyncio.wait_for(self.client.queue_prompt({}), timeout=2.0)
+                comfyui_available = True
+            except:
+                logger.warning("ComfyUI not available")
+                comfyui_available = False
+
+            # Decide provider
+            if gpu_occupied or not comfyui_available:
+                use_cloud = True
+                provider_used = "fal"
+                logger.info(f"Using cloud provider: GPU occupied={gpu_occupied}, ComfyUI available={comfyui_available}")
+
+        # Use cloud provider if needed
+        if use_cloud:
+            logger.info("Routing inference to fal.ai")
+            try:
+                return await self._generate_with_fal(
+                    prompt=prompt,
+                    negative_prompt=negative_prompt,
+                    product_id=product_id,
+                    width=width,
+                    height=height,
+                    steps=steps,
+                    cfg=cfg,
+                    seed=seed,
+                    num_images=num_images,
+                    db=db,
+                    user_id=user_id
+                )
+            except Exception as e:
+                logger.error(f"FAL generation failed: {e}")
+                raise Exception(f"Cloud inference failed: {e}. Local GPU is busy or unavailable.")
+
+        # Use local ComfyUI
+        logger.info("Using local ComfyUI for inference")
+
         try:
             # Get model information if product specified
             lora_name = None
@@ -421,5 +477,96 @@ class InferenceService:
         base_cost = 0.02
         step_multiplier = steps / 20
         resolution_multiplier = resolution / (1024 * 1024)
-        
+
         return round(base_cost * step_multiplier * resolution_multiplier * num_images, 4)
+
+    async def _generate_with_fal(
+        self,
+        prompt: str,
+        negative_prompt: str = "",
+        product_id: Optional[int] = None,
+        width: int = 1024,
+        height: int = 1024,
+        steps: int = 20,
+        cfg: float = 3.5,
+        seed: int = -1,
+        num_images: int = 1,
+        db: Session = None,
+        user_id: int = None
+    ) -> Dict[str, Any]:
+        """Generate images using fal.ai cloud service"""
+
+        start_time = time.time()
+
+        # Get product/LoRA info if specified
+        lora_url = None
+        trigger_word = None
+        if product_id and db:
+            product = db.query(Product).filter(Product.id == product_id).first()
+            if product:
+                trigger_word = product.trigger_word
+                # Check if product has a deployed LoRA on fal
+                # For now, we'll just use the trigger word in the prompt
+                if trigger_word and trigger_word not in prompt:
+                    prompt = f"{trigger_word} {prompt}"
+
+        # Call FAL service for generation
+        logger.info(f"Generating {num_images} images with fal.ai")
+        fal_result = await self.fal_service.generate_image(
+            prompt=prompt,
+            negative_prompt=negative_prompt,
+            width=width,
+            height=height,
+            steps=steps,
+            guidance_scale=cfg,
+            seed=seed if seed != -1 else None,
+            num_images=num_images,
+            lora_url=lora_url
+        )
+
+        generated_images = fal_result.get("images", [])
+        execution_time = time.time() - start_time
+        cost = fal_result.get("cost", self._calculate_cost(steps, width * height, num_images))
+
+        # Save generation record to database
+        if db and user_id:
+            generation = Generation(
+                prompt=prompt,
+                negative_prompt=negative_prompt if negative_prompt else None,
+                product_id=product_id,
+                image_paths=generated_images,
+                parameters={
+                    "width": width, "height": height, "steps": steps,
+                    "cfg": cfg, "seed": seed, "num_images": num_images,
+                    "provider": "fal"
+                },
+                execution_time=execution_time,
+                cost=cost,
+                user_id=user_id
+            )
+
+            db.add(generation)
+            db.commit()
+            db.refresh(generation)
+
+            return {
+                "id": generation.id,
+                "images": generated_images,
+                "prompt": prompt,
+                "negative_prompt": negative_prompt,
+                "product_id": product_id,
+                "parameters": generation.parameters,
+                "execution_time": execution_time,
+                "cost": cost,
+                "status": "completed",
+                "provider": "fal"
+            }
+        else:
+            return {
+                "images": generated_images,
+                "prompt": prompt,
+                "execution_time": execution_time,
+                "cost": cost,
+                "status": "completed",
+                "provider": "fal"
+            }

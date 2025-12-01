@@ -143,12 +143,22 @@ const TrainingProgress = () => {
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
                 <Typography variant="h6">Training Status</Typography>
-                <Chip
-                  icon={getStatusIcon(job.status)}
-                  label={job.status.toUpperCase()}
-                  color={getStatusColor(job.status)}
-                  variant="outlined"
-                />
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  <Chip
+                    icon={getStatusIcon(job.status)}
+                    label={job.status.toUpperCase()}
+                    color={getStatusColor(job.status)}
+                    variant="outlined"
+                  />
+                  {job.provider && (
+                    <Chip
+                      label={job.provider === 'LOCAL' ? 'FluxGym (Local)' : job.provider}
+                      color={job.provider === 'LOCAL' ? 'success' : 'info'}
+                      size="small"
+                      variant="outlined"
+                    />
+                  )}
+                </Box>
               </Box>
 
               <Box sx={{ mb: 2 }}>
