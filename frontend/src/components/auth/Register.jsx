@@ -69,7 +69,7 @@ const Register = () => {
 
     try {
       const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001';
-      
+
       // Use FormData for backend compatibility
       const formDataToSend = new FormData();
       formDataToSend.append('username', formData.username.trim());
@@ -86,30 +86,30 @@ const Register = () => {
 
       if (response.ok) {
         const data = await response.json();
-        
+
         // If backend returns token, store it
         if (data.access_token) {
           localStorage.setItem('access_token', data.access_token);
           navigate('/editor');
         } else {
           // Otherwise redirect to login
-          navigate('/login', { 
+          navigate('/login', {
             state: { message: 'Registration successful! Please log in.' }
           });
         }
       } else {
         const responseText = await response.text();
         let errorData;
-        
+
         try {
           errorData = JSON.parse(responseText);
         } catch (e) {
           errorData = { detail: responseText };
         }
-        
+
         if (errorData.detail) {
           if (Array.isArray(errorData.detail)) {
-            const errors = errorData.detail.map(err => 
+            const errors = errorData.detail.map(err =>
               `${err.loc ? err.loc[err.loc.length - 1] : 'field'}: ${err.msg}`
             ).join(', ');
             setError(`Validation errors: ${errors}`);
@@ -124,7 +124,7 @@ const Register = () => {
       console.error('Registration error:', error);
       setError('Network error: ' + error.message);
     }
-    
+
     setLoading(false);
   };
 
@@ -133,56 +133,54 @@ const Register = () => {
       sx={{
         maxWidth: 520,
         width: '100%',
-        background: 'rgba(255, 255, 255, 0.95)',
-        backdropFilter: 'blur(20px)',
-        boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
-        border: '1px solid rgba(255, 255, 255, 0.3)',
+        backgroundColor: '#ffffff',
+        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.08)',
+        border: '1px solid #e2e8f0',
       }}
     >
       <CardContent sx={{ p: 5 }}>
         <Box sx={{ textAlign: 'center', mb: 4 }}>
           <Box
             sx={{
-              width: 80,
-              height: 80,
+              width: 56,
+              height: 56,
               margin: '0 auto',
-              mb: 2,
-              background: 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)',
-              borderRadius: '20px',
+              mb: 3,
+              backgroundColor: '#2563eb',
+              borderRadius: '12px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 8px 24px rgba(236, 72, 153, 0.4)',
-              animation: 'float 3s ease-in-out infinite',
-              '@keyframes float': {
-                '0%, 100%': { transform: 'translateY(0px)' },
-                '50%': { transform: 'translateY(-10px)' },
-              },
             }}
           >
-            <PersonAdd sx={{ fontSize: 40, color: '#fff' }} />
+            <PersonAdd sx={{ fontSize: 28, color: '#fff' }} />
           </Box>
           <Typography
             variant="h4"
             component="h1"
             gutterBottom
             sx={{
-              fontWeight: 800,
-              background: 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)',
-              backgroundClip: 'text',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
+              fontWeight: 600,
+              color: '#0f172a',
+              mb: 1,
             }}
           >
-            Create Account
+            Create your account
           </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ fontSize: '1.05rem' }}>
-            Join the AI Training Platform
+          <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.9375rem' }}>
+            Start using AI Studio today
           </Typography>
         </Box>
 
         {error && (
-          <Alert severity="error" sx={{ mb: 2 }}>
+          <Alert
+            severity="error"
+            sx={{
+              mb: 3,
+              borderRadius: '8px',
+              border: '1px solid #dc2626',
+            }}
+          >
             {error}
           </Alert>
         )}
@@ -198,11 +196,11 @@ const Register = () => {
               margin="normal"
               required
               autoFocus
-              placeholder="e.g. johndoe"
+              placeholder="johndoe"
               helperText="Unique username"
               sx={{
                 '& .MuiOutlinedInput-root': {
-                  backgroundColor: 'rgba(236, 72, 153, 0.03)',
+                  backgroundColor: '#fafafa',
                 },
               }}
             />
@@ -217,10 +215,10 @@ const Register = () => {
               margin="normal"
               required
               autoComplete="email"
-              placeholder="e.g. john@example.com"
+              placeholder="john@example.com"
               sx={{
                 '& .MuiOutlinedInput-root': {
-                  backgroundColor: 'rgba(236, 72, 153, 0.03)',
+                  backgroundColor: '#fafafa',
                 },
               }}
             />
@@ -233,10 +231,11 @@ const Register = () => {
             value={formData.full_name}
             onChange={handleChange}
             margin="normal"
-            placeholder="e.g. John Doe"
+            placeholder="John Doe"
             sx={{
+              mb: 1,
               '& .MuiOutlinedInput-root': {
-                backgroundColor: 'rgba(236, 72, 153, 0.03)',
+                backgroundColor: '#fafafa',
               },
             }}
           />
@@ -255,7 +254,7 @@ const Register = () => {
               helperText="Min. 6 characters"
               sx={{
                 '& .MuiOutlinedInput-root': {
-                  backgroundColor: 'rgba(236, 72, 153, 0.03)',
+                  backgroundColor: '#fafafa',
                 },
               }}
             />
@@ -272,7 +271,7 @@ const Register = () => {
               autoComplete="new-password"
               sx={{
                 '& .MuiOutlinedInput-root': {
-                  backgroundColor: 'rgba(236, 72, 153, 0.03)',
+                  backgroundColor: '#fafafa',
                 },
               }}
             />
@@ -288,37 +287,32 @@ const Register = () => {
               mt: 4,
               mb: 2,
               py: 1.5,
-              fontSize: '1.05rem',
-              background: 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)',
-              boxShadow: '0 4px 12px rgba(236, 72, 153, 0.4)',
-              '&:hover': {
-                background: 'linear-gradient(135deg, #db2777 0%, #7c3aed 100%)',
-                boxShadow: '0 6px 20px rgba(236, 72, 153, 0.5)',
-              },
+              fontSize: '1rem',
+              fontWeight: 500,
             }}
           >
             {loading ? (
               <>
                 <CircularProgress size={20} sx={{ mr: 1, color: '#fff' }} />
-                Creating Account...
+                Creating account...
               </>
             ) : (
-              'Create Account'
+              'Create account'
             )}
           </Button>
 
           <Box sx={{ textAlign: 'center' }}>
-            <Typography variant="body2">
+            <Typography variant="body2" sx={{ color: '#64748b' }}>
               Already have an account?{' '}
               <Link
                 to="/login"
                 style={{
-                  color: '#ec4899',
+                  color: '#2563eb',
                   textDecoration: 'none',
-                  fontWeight: 600
+                  fontWeight: 500
                 }}
               >
-                Sign in here
+                Sign in
               </Link>
             </Typography>
           </Box>

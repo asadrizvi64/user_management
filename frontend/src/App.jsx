@@ -34,142 +34,174 @@ import History from './components/history/History';
 import UserManagement from './components/users/UserManagement';
 import Reports from './components/reports/Reports';
 
-// Enhanced Theme configuration with modern colors and gradients
+// Professional SaaS Theme - Minimal, Clean, Easy to Use
 const theme = createTheme({
   palette: {
     mode: 'light',
     primary: {
-      main: '#6366f1', // Indigo
-      light: '#818cf8',
-      dark: '#4f46e5',
+      main: '#2563eb', // Professional Blue
+      light: '#3b82f6',
+      dark: '#1e40af',
       contrastText: '#ffffff',
     },
     secondary: {
-      main: '#ec4899', // Pink
-      light: '#f472b6',
-      dark: '#db2777',
+      main: '#475569', // Slate Gray
+      light: '#64748b',
+      dark: '#334155',
       contrastText: '#ffffff',
     },
     success: {
-      main: '#10b981',
-      light: '#34d399',
-      dark: '#059669',
+      main: '#059669',
+      light: '#10b981',
+      dark: '#047857',
     },
     warning: {
-      main: '#f59e0b',
-      light: '#fbbf24',
-      dark: '#d97706',
+      main: '#d97706',
+      light: '#f59e0b',
+      dark: '#b45309',
     },
     error: {
-      main: '#ef4444',
-      light: '#f87171',
-      dark: '#dc2626',
+      main: '#dc2626',
+      light: '#ef4444',
+      dark: '#b91c1c',
     },
     info: {
-      main: '#3b82f6',
-      light: '#60a5fa',
-      dark: '#2563eb',
+      main: '#0891b2',
+      light: '#06b6d4',
+      dark: '#0e7490',
     },
     background: {
-      default: '#f8fafc',
+      default: '#fafafa',
       paper: '#ffffff',
     },
     text: {
-      primary: '#1e293b',
-      secondary: '#64748b',
+      primary: '#0f172a',
+      secondary: '#475569',
     },
+    divider: '#e2e8f0',
   },
   typography: {
-    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
     h1: {
-      fontWeight: 800,
-      fontSize: '3rem',
+      fontWeight: 700,
+      fontSize: '2.5rem',
       lineHeight: 1.2,
+      letterSpacing: '-0.025em',
     },
     h2: {
       fontWeight: 700,
-      fontSize: '2.5rem',
-      lineHeight: 1.3,
+      fontSize: '2rem',
+      lineHeight: 1.25,
+      letterSpacing: '-0.02em',
     },
     h3: {
-      fontWeight: 700,
-      fontSize: '2rem',
+      fontWeight: 600,
+      fontSize: '1.75rem',
       lineHeight: 1.3,
+      letterSpacing: '-0.015em',
     },
     h4: {
-      fontWeight: 700,
-      fontSize: '1.75rem',
-      lineHeight: 1.4,
-    },
-    h5: {
       fontWeight: 600,
       fontSize: '1.5rem',
-      lineHeight: 1.4,
+      lineHeight: 1.35,
+      letterSpacing: '-0.01em',
     },
-    h6: {
+    h5: {
       fontWeight: 600,
       fontSize: '1.25rem',
       lineHeight: 1.4,
     },
-    button: {
+    h6: {
       fontWeight: 600,
-      letterSpacing: '0.02em',
+      fontSize: '1.125rem',
+      lineHeight: 1.4,
+    },
+    subtitle1: {
+      fontSize: '1rem',
+      lineHeight: 1.5,
+      fontWeight: 500,
+    },
+    subtitle2: {
+      fontSize: '0.875rem',
+      lineHeight: 1.5,
+      fontWeight: 500,
+    },
+    body1: {
+      fontSize: '0.9375rem',
+      lineHeight: 1.6,
+    },
+    body2: {
+      fontSize: '0.875rem',
+      lineHeight: 1.6,
+    },
+    button: {
+      fontWeight: 500,
+      letterSpacing: '0.01em',
+      textTransform: 'none',
     },
   },
   shape: {
-    borderRadius: 12,
+    borderRadius: 8,
   },
   shadows: [
     'none',
-    '0 1px 2px 0 rgb(0 0 0 / 0.05)',
-    '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
-    '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
-    '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
-    '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
-    '0 25px 50px -12px rgb(0 0 0 / 0.25)',
-    '0 25px 50px -12px rgb(0 0 0 / 0.25)',
-    '0 25px 50px -12px rgb(0 0 0 / 0.25)',
-    '0 25px 50px -12px rgb(0 0 0 / 0.25)',
-    '0 25px 50px -12px rgb(0 0 0 / 0.25)',
-    '0 25px 50px -12px rgb(0 0 0 / 0.25)',
+    '0 1px 2px 0 rgb(0 0 0 / 0.04)',
+    '0 1px 3px 0 rgb(0 0 0 / 0.06)',
+    '0 2px 4px 0 rgb(0 0 0 / 0.06)',
+    '0 4px 6px -1px rgb(0 0 0 / 0.08)',
+    '0 10px 15px -3px rgb(0 0 0 / 0.08)',
+    '0 20px 25px -5px rgb(0 0 0 / 0.08)',
+    '0 25px 50px -12px rgb(0 0 0 / 0.15)',
+    '0 25px 50px -12px rgb(0 0 0 / 0.15)',
+    '0 25px 50px -12px rgb(0 0 0 / 0.15)',
+    '0 25px 50px -12px rgb(0 0 0 / 0.15)',
+    '0 25px 50px -12px rgb(0 0 0 / 0.15)',
   ],
   components: {
     MuiButton: {
       styleOverrides: {
         root: {
           textTransform: 'none',
-          borderRadius: 10,
-          padding: '10px 24px',
-          fontSize: '0.95rem',
-          fontWeight: 600,
+          borderRadius: 6,
+          padding: '9px 20px',
+          fontSize: '0.9375rem',
+          fontWeight: 500,
           boxShadow: 'none',
-          transition: 'all 0.2s ease-in-out',
+          transition: 'all 0.15s ease',
           '&:hover': {
-            boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)',
-            transform: 'translateY(-1px)',
+            boxShadow: 'none',
+            transform: 'none',
           },
         },
         contained: {
-          background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
           '&:hover': {
-            background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
+            boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
           },
         },
         outlined: {
-          borderWidth: '2px',
+          borderWidth: '1.5px',
           '&:hover': {
-            borderWidth: '2px',
+            borderWidth: '1.5px',
+            backgroundColor: 'rgba(0, 0, 0, 0.02)',
           },
+        },
+        sizeLarge: {
+          padding: '11px 24px',
+          fontSize: '1rem',
+        },
+        sizeSmall: {
+          padding: '6px 16px',
+          fontSize: '0.875rem',
         },
       },
     },
     MuiCard: {
       styleOverrides: {
         root: {
-          borderRadius: 16,
-          boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
-          transition: 'all 0.3s ease-in-out',
-          border: '1px solid rgba(0, 0, 0, 0.05)',
+          borderRadius: 10,
+          boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.06)',
+          border: '1px solid #e2e8f0',
+          transition: 'all 0.2s ease',
         },
       },
     },
@@ -177,16 +209,20 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           '& .MuiOutlinedInput-root': {
-            borderRadius: 10,
-            transition: 'all 0.2s ease-in-out',
+            borderRadius: 6,
+            transition: 'all 0.15s ease',
+            '& .MuiOutlinedInput-notchedOutline': {
+              borderColor: '#e2e8f0',
+            },
             '&:hover': {
               '& .MuiOutlinedInput-notchedOutline': {
-                borderColor: '#6366f1',
+                borderColor: '#cbd5e1',
               },
             },
             '&.Mui-focused': {
               '& .MuiOutlinedInput-notchedOutline': {
-                borderWidth: '2px',
+                borderWidth: '1.5px',
+                borderColor: '#2563eb',
               },
             },
           },
@@ -196,8 +232,9 @@ const theme = createTheme({
     MuiChip: {
       styleOverrides: {
         root: {
-          borderRadius: 8,
-          fontWeight: 600,
+          borderRadius: 6,
+          fontWeight: 500,
+          fontSize: '0.8125rem',
         },
       },
     },
@@ -206,45 +243,40 @@ const theme = createTheme({
         root: {
           backgroundImage: 'none',
         },
+        elevation1: {
+          boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.04)',
+        },
+      },
+    },
+    MuiAppBar: {
+      styleOverrides: {
+        root: {
+          boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.04)',
+        },
       },
     },
   },
 });
 
-// Enhanced Layout component with smooth transitions
+// Clean Layout component with professional spacing
 const Layout = ({ children }) => {
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f8fafc' }}>
+    <Box sx={{ display: 'flex', minHeight: '100vh', backgroundColor: '#fafafa' }}>
       <Header />
       <Sidebar />
       <Box
         component="main"
         sx={{
           flexGrow: 1,
-          p: 4,
-          width: { sm: `calc(100% - 260px)` },
-          ml: { sm: '260px' },
-          mt: '70px',
-          backgroundColor: '#f8fafc',
-          minHeight: 'calc(100vh - 70px)',
-          transition: 'all 0.3s ease-in-out',
+          p: { xs: 3, sm: 4, md: 5 },
+          width: { sm: `calc(100% - 240px)` },
+          ml: { sm: '240px' },
+          mt: '64px',
+          backgroundColor: '#fafafa',
+          minHeight: 'calc(100vh - 64px)',
         }}
       >
-        <Box
-          sx={{
-            animation: 'fadeIn 0.5s ease-in-out',
-            '@keyframes fadeIn': {
-              from: {
-                opacity: 0,
-                transform: 'translateY(10px)',
-              },
-              to: {
-                opacity: 1,
-                transform: 'translateY(0)',
-              },
-            },
-          }}
-        >
+        <Box sx={{ maxWidth: '1600px', mx: 'auto' }}>
           {children}
         </Box>
       </Box>
@@ -252,7 +284,7 @@ const Layout = ({ children }) => {
   );
 };
 
-// Enhanced Auth layout with animated gradient
+// Clean Auth layout with professional aesthetic
 const AuthLayout = ({ children }) => {
   return (
     <Box
@@ -261,32 +293,13 @@ const AuthLayout = ({ children }) => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)',
-        backgroundSize: '200% 200%',
-        animation: 'gradientShift 15s ease infinite',
+        backgroundColor: '#fafafa',
+        backgroundImage: `
+          radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.08) 0px, transparent 50%),
+          radial-gradient(at 100% 100%, rgba(37, 99, 235, 0.06) 0px, transparent 50%)
+        `,
         position: 'relative',
-        overflow: 'hidden',
-        '@keyframes gradientShift': {
-          '0%': {
-            backgroundPosition: '0% 50%',
-          },
-          '50%': {
-            backgroundPosition: '100% 50%',
-          },
-          '100%': {
-            backgroundPosition: '0% 50%',
-          },
-        },
-        '&::before': {
-          content: '""',
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(255,255,255,0.1) 0%, transparent 50%)',
-          pointerEvents: 'none',
-        },
+        px: 2,
       }}
     >
       {children}
