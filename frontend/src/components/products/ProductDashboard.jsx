@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Container, Grid, Card, CardContent, CardActions, Typography,
+  Grid, Card, CardContent, CardActions, Typography,
   Button, Box, Fab, Dialog, DialogTitle, DialogContent, DialogActions,
-  TextField, Chip, Avatar, IconButton, Menu, MenuItem, Alert,
+  TextField, Chip, IconButton, Menu, MenuItem, Alert,
   FormControl, InputLabel, Select, Pagination
 } from '@mui/material';
 import {
@@ -143,45 +143,48 @@ const ProductDashboard = () => {
   const totalPages = Math.ceil(total / limit);
 
   return (
-    <Container maxWidth="xl" sx={{ py: 4 }}>
+    <Box sx={{ maxWidth: '1400px', margin: '0 auto' }}>
       {/* Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-        <Box>
-          <Typography variant="h4" gutterBottom>
-            Product Dashboard
-          </Typography>
-          <Typography variant="subtitle1" color="textSecondary">
-            Manage your trained products and models
-          </Typography>
+      <Box sx={{ mb: 5 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+          <Box>
+            <Typography variant="h4" sx={{ fontWeight: 700, mb: 1, color: '#0F172A' }}>
+              Products
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Manage your trained models and products
+            </Typography>
+          </Box>
+
+          <Button
+            variant="contained"
+            startIcon={<Add />}
+            onClick={() => setCreateDialogOpen(true)}
+            sx={{ px: 3 }}
+          >
+            Create Product
+          </Button>
         </Box>
-        
-        <Button
-          variant="contained"
-          startIcon={<Add />}
-          onClick={() => setCreateDialogOpen(true)}
-          size="large"
-        >
-          Create Product
-        </Button>
       </Box>
 
       {/* Alerts */}
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-      {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
+      {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
+      {success && <Alert severity="success" sx={{ mb: 3 }}>{success}</Alert>}
 
       {/* Filters */}
-      <Box sx={{ mb: 3, display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
+      <Box sx={{ mb: 4, display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap', p: 3, backgroundColor: '#FFFFFF', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
         <TextField
           placeholder="Search products..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           sx={{ minWidth: 300 }}
+          size="small"
           InputProps={{
-            startAdornment: <Search sx={{ mr: 1, color: 'text.secondary' }} />
+            startAdornment: <Search sx={{ mr: 1, color: 'text.secondary', fontSize: '1.25rem' }} />
           }}
         />
-        
-        <FormControl sx={{ minWidth: 150 }}>
+
+        <FormControl sx={{ minWidth: 150 }} size="small">
           <InputLabel>Access Level</InputLabel>
           <Select
             value={accessFilter}
@@ -193,9 +196,9 @@ const ProductDashboard = () => {
             <MenuItem value="private">Private</MenuItem>
           </Select>
         </FormControl>
-        
-        <Typography variant="body2" color="textSecondary" sx={{ ml: 'auto' }}>
-          {total} products found
+
+        <Typography variant="body2" color="text.secondary" sx={{ ml: 'auto', fontWeight: 500 }}>
+          {total} {total === 1 ? 'product' : 'products'}
         </Typography>
       </Box>
 
@@ -203,89 +206,117 @@ const ProductDashboard = () => {
       <Grid container spacing={3}>
         {products.map((product) => (
           <Grid item xs={12} sm={6} md={4} lg={3} key={product.id}>
-            <Card 
-              sx={{ 
-                height: '100%', 
-                display: 'flex', 
+            <Card
+              sx={{
+                height: '100%',
+                display: 'flex',
                 flexDirection: 'column',
-                '&:hover': { boxShadow: 4 }
+                transition: 'all 0.15s ease',
+                '&:hover': {
+                  boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                  transform: 'translateY(-2px)',
+                }
               }}
             >
-              <CardContent sx={{ flexGrow: 1 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                  <Avatar sx={{ bgcolor: 'primary.main' }}>
-                    <PhotoLibrary />
-                  </Avatar>
-                  
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Chip
-                      icon={product.access_level === 'public' ? <Public /> : <Lock />}
-                      label={product.access_level}
-                      size="small"
-                      color={product.access_level === 'public' ? 'success' : 'warning'}
-                      variant="outlined"
-                    />
-                    <IconButton 
-                      size="small"
-                      onClick={(e) => handleMenuClick(e, product)}
-                    >
-                      <MoreVert />
-                    </IconButton>
+              <CardContent sx={{ flexGrow: 1, p: 3 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}>
+                  <Box
+                    sx={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: '8px',
+                      backgroundColor: '#F8FAFC',
+                      border: '1px solid #E2E8F0',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <PhotoLibrary sx={{ fontSize: '1.25rem', color: '#64748B' }} />
                   </Box>
+
+                  <IconButton
+                    size="small"
+                    onClick={(e) => handleMenuClick(e, product)}
+                    sx={{ color: '#64748B' }}
+                  >
+                    <MoreVert fontSize="small" />
+                  </IconButton>
                 </Box>
 
-                <Typography variant="h6" gutterBottom noWrap>
+                <Typography variant="h6" gutterBottom noWrap sx={{ fontWeight: 600, fontSize: '1rem', mb: 1 }}>
                   {product.name}
                 </Typography>
-                
-                <Typography 
-                  variant="body2" 
-                  color="textSecondary" 
-                  sx={{ 
-                    mb: 2,
+
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{
+                    mb: 3,
                     display: '-webkit-box',
                     WebkitLineClamp: 2,
                     WebkitBoxOrient: 'vertical',
-                    overflow: 'hidden'
+                    overflow: 'hidden',
+                    minHeight: '2.5rem',
+                    lineHeight: 1.4,
                   }}
                 >
                   {product.description || 'No description provided'}
                 </Typography>
 
-                <Box sx={{ mb: 2 }}>
-                  <Typography variant="caption" color="textSecondary">
-                    Trigger Word:
-                  </Typography>
+                <Box sx={{ display: 'flex', gap: 1, mb: 2, flexWrap: 'wrap' }}>
                   <Chip
-                    label={product.trigger_word}
+                    icon={product.access_level === 'public' ? <Public sx={{ fontSize: '0.875rem' }} /> : <Lock sx={{ fontSize: '0.875rem' }} />}
+                    label={product.access_level}
                     size="small"
                     variant="outlined"
-                    sx={{ ml: 1 }}
+                    sx={{
+                      borderColor: product.access_level === 'public' ? '#059669' : '#64748B',
+                      color: product.access_level === 'public' ? '#059669' : '#64748B',
+                      fontWeight: 500,
+                    }}
+                  />
+                  <Chip
+                    label={product.status}
+                    size="small"
+                    sx={{
+                      backgroundColor: product.status === 'ready' ? '#F0FDF4' : '#FEF3C7',
+                      color: product.status === 'ready' ? '#059669' : '#D97706',
+                      fontWeight: 500,
+                      border: '1px solid',
+                      borderColor: product.status === 'ready' ? '#BBF7D0' : '#FDE68A',
+                    }}
                   />
                 </Box>
 
-                <Chip
-                  label={product.status.toUpperCase()}
-                  size="small"
-                  color={getStatusColor(product.status)}
-                  sx={{ mt: 'auto' }}
-                />
+                <Box sx={{ pt: 2, borderTop: '1px solid #E2E8F0' }}>
+                  <Typography variant="caption" sx={{ color: '#64748B', fontSize: '0.75rem' }}>
+                    Trigger word
+                  </Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 500, fontFamily: 'monospace', color: '#0F172A', mt: 0.5 }}>
+                    {product.trigger_word}
+                  </Typography>
+                </Box>
               </CardContent>
 
-              <CardActions>
+              <CardActions sx={{ p: 2, pt: 0, gap: 1 }}>
                 <Button
                   size="small"
                   onClick={() => navigate('/editor')}
                   disabled={product.status !== 'ready'}
+                  variant="outlined"
+                  fullWidth
                 >
                   Generate
                 </Button>
-                
+
                 {canManageProduct(product) && (
                   <Button
                     size="small"
-                    startIcon={<ModelTraining />}
+                    startIcon={<ModelTraining fontSize="small" />}
                     onClick={() => navigate(`/products/${product.id}/train`)}
+                    variant="outlined"
+                    fullWidth
                   >
                     Train
                   </Button>
@@ -385,15 +416,16 @@ const ProductDashboard = () => {
         aria-label="add"
         sx={{
           position: 'fixed',
-          bottom: 16,
-          right: 16,
-          display: { xs: 'flex', md: 'none' }
+          bottom: 24,
+          right: 24,
+          display: { xs: 'flex', md: 'none' },
+          boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
         }}
         onClick={() => setCreateDialogOpen(true)}
       >
         <Add />
       </Fab>
-    </Container>
+    </Box>
   );
 };
 

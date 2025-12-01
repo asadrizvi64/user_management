@@ -1,9 +1,8 @@
 import React from 'react';
-import { AppBar, Toolbar, Typography, Button, Box, IconButton } from '@mui/material';
+import { AppBar, Toolbar, Typography, Button, Box, Avatar } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth.jsx';
 import LogoutIcon from '@mui/icons-material/Logout';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
 export default function Header() {
   const navigate = useNavigate();
@@ -20,26 +19,24 @@ export default function Header() {
       elevation={0}
       sx={{
         zIndex: (theme) => theme.zIndex.drawer + 1,
-        background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-        backdropFilter: 'blur(10px)',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+        backgroundColor: '#FFFFFF',
+        color: '#0F172A',
       }}
     >
-      <Toolbar sx={{ py: 1 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexGrow: 1 }}>
+      <Toolbar sx={{ minHeight: '64px', px: 3 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexGrow: 1 }}>
           <Box
             sx={{
-              width: 40,
-              height: 40,
-              background: 'rgba(255, 255, 255, 0.2)',
-              borderRadius: '10px',
+              width: 32,
+              height: 32,
+              backgroundColor: '#0F172A',
+              borderRadius: '6px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              border: '1px solid rgba(255, 255, 255, 0.3)',
             }}
           >
-            <Typography variant="h6" sx={{ fontWeight: 800, color: '#fff' }}>
+            <Typography variant="h6" sx={{ fontWeight: 700, color: '#fff', fontSize: '0.875rem' }}>
               AI
             </Typography>
           </Box>
@@ -47,9 +44,9 @@ export default function Header() {
             variant="h6"
             component="div"
             sx={{
-              fontWeight: 700,
-              letterSpacing: '-0.02em',
-              color: '#fff',
+              fontWeight: 600,
+              fontSize: '0.9375rem',
+              color: '#0F172A',
             }}
           >
             Training Platform
@@ -63,31 +60,30 @@ export default function Header() {
                 display: 'flex',
                 alignItems: 'center',
                 gap: 1.5,
-                backgroundColor: 'rgba(255, 255, 255, 0.15)',
-                padding: '8px 16px',
-                borderRadius: '12px',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
+                px: 2,
+                py: 1,
+                borderRadius: '6px',
+                border: '1px solid #E2E8F0',
+                backgroundColor: '#FFFFFF',
               }}
             >
-              <Box
+              <Avatar
                 sx={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: '10px',
-                  background: 'linear-gradient(135deg, #fff 0%, #f0f0f0 100%)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#6366f1',
+                  width: 28,
+                  height: 28,
+                  fontSize: '0.75rem',
+                  fontWeight: 600,
+                  backgroundColor: '#0F172A',
+                  color: '#FFFFFF',
                 }}
               >
-                <AccountCircleIcon />
-              </Box>
+                {user.username.charAt(0).toUpperCase()}
+              </Avatar>
               <Box>
-                <Typography variant="body2" sx={{ fontWeight: 600, color: '#fff', lineHeight: 1.2 }}>
+                <Typography variant="body2" sx={{ fontWeight: 500, color: '#0F172A', lineHeight: 1.2, fontSize: '0.875rem' }}>
                   {user.username}
                 </Typography>
-                <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.8)', lineHeight: 1 }}>
+                <Typography variant="caption" sx={{ color: '#64748B', lineHeight: 1, fontSize: '0.75rem' }}>
                   {user.role}
                 </Typography>
               </Box>
@@ -95,14 +91,16 @@ export default function Header() {
 
             <Button
               variant="outlined"
-              startIcon={<LogoutIcon />}
+              startIcon={<LogoutIcon sx={{ fontSize: '1rem' }} />}
               onClick={handleLogout}
               sx={{
-                color: '#fff',
-                borderColor: 'rgba(255, 255, 255, 0.3)',
+                fontSize: '0.875rem',
+                color: '#64748B',
+                borderColor: '#E2E8F0',
                 '&:hover': {
-                  borderColor: '#fff',
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  borderColor: '#CBD5E1',
+                  backgroundColor: '#F8FAFC',
+                  color: '#0F172A',
                 },
               }}
             >

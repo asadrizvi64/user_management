@@ -11,22 +11,21 @@ import {
   CircularProgress,
   Divider
 } from '@mui/material';
-import { LockOpen } from '@mui/icons-material';
+import { LockOutlined } from '@mui/icons-material';
 import { useAuth } from '../../hooks/useAuth.jsx';
 
 export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const { login } = useAuth();
-  
+
   const [formData, setFormData] = useState({
     username: '',
     password: ''
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  
-  // Get success message from navigation state (e.g., after registration)
+
   const successMessage = location.state?.message;
 
   const handleChange = (e) => {
@@ -59,182 +58,170 @@ export default function Login() {
   return (
     <Card
       sx={{
-        maxWidth: 480,
+        maxWidth: 440,
         width: '100%',
-        background: 'rgba(255, 255, 255, 0.95)',
-        backdropFilter: 'blur(20px)',
-        boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
-        border: '1px solid rgba(255, 255, 255, 0.3)',
+        boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1)',
+        border: '1px solid #E2E8F0',
       }}
     >
       <CardContent sx={{ p: 5 }}>
         <Box sx={{ textAlign: 'center', mb: 4 }}>
           <Box
             sx={{
-              width: 80,
-              height: 80,
+              width: 48,
+              height: 48,
               margin: '0 auto',
-              mb: 2,
-              background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-              borderRadius: '20px',
+              mb: 3,
+              backgroundColor: '#0F172A',
+              borderRadius: '8px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 8px 24px rgba(99, 102, 241, 0.4)',
-              animation: 'float 3s ease-in-out infinite',
-              '@keyframes float': {
-                '0%, 100%': { transform: 'translateY(0px)' },
-                '50%': { transform: 'translateY(-10px)' },
-              },
             }}
           >
-            <LockOpen sx={{ fontSize: 40, color: '#fff' }} />
+            <LockOutlined sx={{ fontSize: 24, color: '#fff' }} />
           </Box>
           <Typography
             variant="h4"
             component="h1"
             gutterBottom
             sx={{
-              fontWeight: 800,
-              background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-              backgroundClip: 'text',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
+              fontWeight: 700,
+              color: '#0F172A',
+              mb: 1,
             }}
           >
-            AI Training Platform
+            Welcome back
           </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ fontSize: '1.05rem' }}>
-            Sign in to your account
+          <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.9375rem' }}>
+            Sign in to your account to continue
           </Typography>
         </Box>
 
-          {successMessage && (
-            <Alert severity="success" sx={{ mb: 2 }}>
-              {successMessage}
-            </Alert>
-          )}
+        {successMessage && (
+          <Alert severity="success" sx={{ mb: 3 }}>
+            {successMessage}
+          </Alert>
+        )}
 
-          {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {error}
-            </Alert>
-          )}
+        {error && (
+          <Alert severity="error" sx={{ mb: 3 }}>
+            {error}
+          </Alert>
+        )}
 
-          <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit}>
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="body2" sx={{ mb: 1, fontWeight: 500, color: '#0F172A' }}>
+              Username
+            </Typography>
             <TextField
               fullWidth
-              label="Username"
               name="username"
               value={formData.username}
               onChange={handleChange}
-              margin="normal"
               required
               autoFocus
               autoComplete="username"
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  backgroundColor: 'rgba(99, 102, 241, 0.03)',
-                },
-              }}
+              placeholder="Enter your username"
+              size="medium"
             />
+          </Box>
+
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="body2" sx={{ mb: 1, fontWeight: 500, color: '#0F172A' }}>
+              Password
+            </Typography>
             <TextField
               fullWidth
-              label="Password"
               name="password"
               type="password"
               value={formData.password}
               onChange={handleChange}
-              margin="normal"
               required
               autoComplete="current-password"
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  backgroundColor: 'rgba(99, 102, 241, 0.03)',
-                },
-              }}
+              placeholder="Enter your password"
+              size="medium"
             />
+          </Box>
 
-            <Button
-              fullWidth
-              type="submit"
-              variant="contained"
-              size="large"
-              disabled={loading}
-              sx={{
-                mt: 4,
-                mb: 2,
-                py: 1.5,
-                fontSize: '1.05rem',
-                background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-                boxShadow: '0 4px 12px rgba(99, 102, 241, 0.4)',
-                '&:hover': {
-                  background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
-                  boxShadow: '0 6px 20px rgba(99, 102, 241, 0.5)',
-                },
-              }}
-            >
-              {loading ? (
-                <>
-                  <CircularProgress size={20} sx={{ mr: 1, color: '#fff' }} />
-                  Signing In...
-                </>
-              ) : (
-                'Sign In'
-              )}
-            </Button>
-
-            <Box sx={{ textAlign: 'center' }}>
-              <Typography variant="body2">
-                Don't have an account?{' '}
-                <Link 
-                  to="/register" 
-                  style={{ 
-                    color: '#667eea', 
-                    textDecoration: 'none',
-                    fontWeight: 500
-                  }}
-                >
-                  Sign up
-                </Link>
-              </Typography>
-            </Box>
-          </form>
-
-          <Divider sx={{ my: 3 }} />
-
-          <Box
+          <Button
+            fullWidth
+            type="submit"
+            variant="contained"
+            size="large"
+            disabled={loading}
             sx={{
-              p: 2.5,
-              background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%)',
-              borderRadius: 2,
-              border: '1px solid rgba(99, 102, 241, 0.1)',
+              mb: 3,
+              py: 1.5,
+              fontSize: '0.9375rem',
             }}
           >
-            <Typography variant="caption" display="block" gutterBottom sx={{ fontWeight: 700, color: 'text.primary', mb: 1 }}>
-              🔑 Default Admin Account
-            </Typography>
-            <Typography variant="caption" display="block" sx={{ mb: 0.5 }}>
-              Username: <strong style={{ color: '#6366f1' }}>admin</strong>
-            </Typography>
-            <Typography variant="caption" display="block" sx={{ mb: 1.5 }}>
-              Password: <strong style={{ color: '#6366f1' }}>admin123</strong>
-            </Typography>
-            <Typography
-              variant="caption"
-              display="block"
-              sx={{
-                color: 'error.main',
-                fontWeight: 600,
-                backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                padding: '4px 8px',
-                borderRadius: 1,
-              }}
-            >
-              ⚠️ Change password after first login!
+            {loading ? (
+              <>
+                <CircularProgress size={18} sx={{ mr: 1, color: '#fff' }} />
+                Signing in...
+              </>
+            ) : (
+              'Sign in'
+            )}
+          </Button>
+
+          <Box sx={{ textAlign: 'center' }}>
+            <Typography variant="body2" color="text.secondary">
+              Don't have an account?{' '}
+              <Link
+                to="/register"
+                style={{
+                  color: '#0F172A',
+                  textDecoration: 'none',
+                  fontWeight: 500
+                }}
+              >
+                Sign up
+              </Link>
             </Typography>
           </Box>
-        </CardContent>
-      </Card>
+        </form>
+
+        <Divider sx={{ my: 4 }} />
+
+        <Box
+          sx={{
+            p: 3,
+            backgroundColor: '#F8FAFC',
+            borderRadius: '6px',
+            border: '1px solid #E2E8F0',
+          }}
+        >
+          <Typography variant="caption" display="block" gutterBottom sx={{ fontWeight: 600, color: '#0F172A', mb: 1.5, fontSize: '0.8125rem' }}>
+            Default Admin Credentials
+          </Typography>
+          <Box sx={{ display: 'flex', gap: 3, mb: 2 }}>
+            <Box>
+              <Typography variant="caption" display="block" sx={{ color: '#64748B', mb: 0.5 }}>
+                Username
+              </Typography>
+              <Typography variant="body2" sx={{ fontWeight: 500, fontFamily: 'monospace', color: '#0F172A' }}>
+                admin
+              </Typography>
+            </Box>
+            <Box>
+              <Typography variant="caption" display="block" sx={{ color: '#64748B', mb: 0.5 }}>
+                Password
+              </Typography>
+              <Typography variant="body2" sx={{ fontWeight: 500, fontFamily: 'monospace', color: '#0F172A' }}>
+                admin123
+              </Typography>
+            </Box>
+          </Box>
+          <Alert severity="warning" sx={{ mt: 2, py: 0.5 }}>
+            <Typography variant="caption" sx={{ fontWeight: 500 }}>
+              Change password after first login
+            </Typography>
+          </Alert>
+        </Box>
+      </CardContent>
+    </Card>
   );
 }
