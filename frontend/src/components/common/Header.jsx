@@ -1,8 +1,8 @@
 import React from 'react';
-import { AppBar, Toolbar, Typography, Button, Box, Avatar } from '@mui/material';
+import { AppBar, Toolbar, Typography, Button, Box, Avatar, Chip } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth.jsx';
-import LogoutIcon from '@mui/icons-material/Logout';
+import { Logout, AutoAwesome } from '@mui/icons-material';
 
 export default function Header() {
   const navigate = useNavigate();
@@ -19,88 +19,144 @@ export default function Header() {
       elevation={0}
       sx={{
         zIndex: (theme) => theme.zIndex.drawer + 1,
-        backgroundColor: '#FFFFFF',
-        color: '#0F172A',
       }}
     >
-      <Toolbar sx={{ minHeight: '64px', px: 3 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexGrow: 1 }}>
+      <Toolbar sx={{ minHeight: '70px', px: 3, justifyContent: 'space-between' }}>
+        {/* Logo with glow effect */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <Box
             sx={{
-              width: 32,
-              height: 32,
-              backgroundColor: '#0F172A',
-              borderRadius: '6px',
+              width: 40,
+              height: 40,
+              background: 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)',
+              borderRadius: '10px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              boxShadow: '0 0 20px rgba(59, 130, 246, 0.5)',
+              animation: 'pulse-glow 2s ease-in-out infinite',
+              position: 'relative',
+              '&::after': {
+                content: '""',
+                position: 'absolute',
+                inset: '-2px',
+                background: 'linear-gradient(135deg, #3B82F6, #8B5CF6)',
+                borderRadius: '12px',
+                opacity: 0.3,
+                filter: 'blur(10px)',
+                zIndex: -1,
+              },
             }}
           >
-            <Typography variant="h6" sx={{ fontWeight: 700, color: '#fff', fontSize: '0.875rem' }}>
-              AI
+            <AutoAwesome sx={{ fontSize: 22, color: '#fff' }} />
+          </Box>
+          <Box>
+            <Typography
+              variant="h6"
+              component="div"
+              sx={{
+                fontWeight: 700,
+                fontSize: '1.1rem',
+                background: 'linear-gradient(135deg, #60A5FA 0%, #A78BFA 100%)',
+                backgroundClip: 'text',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                letterSpacing: '-0.02em',
+              }}
+            >
+              AI Training Platform
+            </Typography>
+            <Typography
+              variant="caption"
+              sx={{
+                color: 'text.secondary',
+                fontSize: '0.7rem',
+                letterSpacing: '0.1em',
+                textTransform: 'uppercase',
+              }}
+            >
+              Next-Gen Intelligence
             </Typography>
           </Box>
-          <Typography
-            variant="h6"
-            component="div"
-            sx={{
-              fontWeight: 600,
-              fontSize: '0.9375rem',
-              color: '#0F172A',
-            }}
-          >
-            Training Platform
-          </Typography>
         </Box>
 
         {user && (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            {/* Dynamic Island - User Info */}
             <Box
+              className="dynamic-island"
               sx={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: 1.5,
-                px: 2,
-                py: 1,
-                borderRadius: '6px',
-                border: '1px solid #E2E8F0',
-                backgroundColor: '#FFFFFF',
+                px: 2.5,
+                py: 1.25,
+                cursor: 'pointer',
+                '&:hover': {
+                  '& .MuiAvatar-root': {
+                    boxShadow: '0 0 15px rgba(59, 130, 246, 0.6)',
+                  },
+                },
               }}
             >
               <Avatar
                 sx={{
-                  width: 28,
-                  height: 28,
-                  fontSize: '0.75rem',
+                  width: 32,
+                  height: 32,
+                  fontSize: '0.875rem',
                   fontWeight: 600,
-                  backgroundColor: '#0F172A',
+                  background: 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)',
                   color: '#FFFFFF',
+                  border: '2px solid rgba(59, 130, 246, 0.3)',
+                  transition: 'all 0.3s ease',
                 }}
               >
                 {user.username.charAt(0).toUpperCase()}
               </Avatar>
               <Box>
-                <Typography variant="body2" sx={{ fontWeight: 500, color: '#0F172A', lineHeight: 1.2, fontSize: '0.875rem' }}>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    fontWeight: 600,
+                    color: '#F1F5F9',
+                    lineHeight: 1.2,
+                    fontSize: '0.875rem',
+                  }}
+                >
                   {user.username}
                 </Typography>
-                <Typography variant="caption" sx={{ color: '#64748B', lineHeight: 1, fontSize: '0.75rem' }}>
-                  {user.role}
-                </Typography>
+                <Chip
+                  label={user.role}
+                  size="small"
+                  sx={{
+                    height: 16,
+                    fontSize: '0.65rem',
+                    mt: 0.5,
+                    background: 'rgba(59, 130, 246, 0.15)',
+                    color: '#60A5FA',
+                    border: '1px solid rgba(59, 130, 246, 0.3)',
+                    fontWeight: 600,
+                    letterSpacing: '0.05em',
+                  }}
+                />
               </Box>
             </Box>
 
+            {/* Logout Button with glow */}
             <Button
               variant="outlined"
-              startIcon={<LogoutIcon sx={{ fontSize: '1rem' }} />}
+              startIcon={<Logout sx={{ fontSize: '1rem' }} />}
               onClick={handleLogout}
               sx={{
                 fontSize: '0.875rem',
-                color: '#64748B',
-                borderColor: '#E2E8F0',
+                borderRadius: '10px',
+                px: 2.5,
+                py: 1,
+                transition: 'all 0.3s ease',
                 '&:hover': {
-                  borderColor: '#CBD5E1',
-                  backgroundColor: '#F8FAFC',
-                  color: '#0F172A',
+                  boxShadow: '0 0 20px rgba(239, 68, 68, 0.4)',
+                  borderColor: '#EF4444',
+                  background: 'rgba(239, 68, 68, 0.1)',
                 },
               }}
             >

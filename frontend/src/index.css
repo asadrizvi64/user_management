@@ -11,8 +11,9 @@ body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #FAFAFA;
-  color: #0F172A;
+  background: #0A0E27;
+  color: #F1F5F9;
+  overflow-x: hidden;
 }
 
 #root {
@@ -24,33 +25,143 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Custom scrollbar - Clean and minimal */
+/* Futuristic scrollbar with glow */
 ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 12px;
+  height: 12px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #F8FAFC;
+  background: rgba(19, 24, 53, 0.4);
+  border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
-  border-radius: 5px;
+  background: linear-gradient(180deg, #3B82F6 0%, #8B5CF6 100%);
+  border-radius: 10px;
+  border: 2px solid rgba(19, 24, 53, 0.4);
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94A3B8;
+  background: linear-gradient(180deg, #60A5FA 0%, #A78BFA 100%);
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.8);
 }
 
-/* Selection color */
+/* Selection color with glow */
 ::selection {
-  background-color: #E0E7FF;
-  color: #0F172A;
+  background-color: rgba(59, 130, 246, 0.3);
+  color: #F1F5F9;
+  text-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
 }
 
-/* Remove default focus outlines and add custom ones */
+/* Futuristic focus states */
 :focus-visible {
-  outline: 2px solid #0F172A;
+  outline: 2px solid #3B82F6;
   outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+}
+
+/* Global keyframe animations */
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+  }
+  50% {
+    opacity: 0.8;
+    box-shadow: 0 0 30px rgba(139, 92, 246, 0.6);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(59, 130, 246, 0.5), 0 0 10px rgba(59, 130, 246, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 10px rgba(139, 92, 246, 0.8), 0 0 20px rgba(139, 92, 246, 0.4);
+  }
+}
+
+/* Utility classes for animations */
+.animate-slide-in {
+  animation: slide-in 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-in-out;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.glow-effect {
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+/* Glassmorphism utility */
+.glass {
+  background: rgba(19, 24, 53, 0.7);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+/* Dynamic island effect */
+.dynamic-island {
+  background: linear-gradient(135deg, rgba(19, 24, 53, 0.95) 0%, rgba(19, 24, 53, 0.85) 100%);
+  backdrop-filter: blur(30px);
+  border-radius: 24px;
+  border: 1.5px solid rgba(59, 130, 246, 0.2);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dynamic-island:hover {
+  border-color: rgba(59, 130, 246, 0.4);
+  box-shadow:
+    0 12px 40px rgba(59, 130, 246, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transform: scale(1.02);
 }
