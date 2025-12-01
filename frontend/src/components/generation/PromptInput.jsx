@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import {
   TextField, Button, Box, FormControl, InputLabel, Select, MenuItem,
   Slider, Typography, Accordion, AccordionSummary, AccordionDetails,
-  Grid, Chip
+  Grid, Chip, IconButton, Card, CardMedia
 } from '@mui/material';
-import { ExpandMore, AutoFixHigh } from '@mui/icons-material';
+import { ExpandMore, AutoFixHigh, CloudUpload, Close } from '@mui/icons-material';
 
 const PromptInput = ({ onGenerate, isGenerating, selectedProduct }) => {
   const [formData, setFormData] = useState({
@@ -14,10 +14,13 @@ const PromptInput = ({ onGenerate, isGenerating, selectedProduct }) => {
     aspect_ratio: '1:1',
     guidance_scale: 7.5,
     num_inference_steps: 50,
-    seed: null
+    seed: null,
+    init_image: null,
+    strength: 0.75
   });
 
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [imagePreview, setImagePreview] = useState(null);
 
   const aspectRatios = [
     { value: '1:1', label: 'Square (1:1)' },
@@ -55,6 +58,32 @@ const PromptInput = ({ onGenerate, isGenerating, selectedProduct }) => {
     }));
   };
 
+  const handleImageUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+
+      // Store file
+      setFormData(prev => ({
+        ...prev,
+        init_image: file
+      }));
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setImagePreview(null);
+    setFormData(prev => ({
+      ...prev,
+      init_image: null
+    }));
+  };
+
   return (
     <Box>
       {/* Product Trigger Word Helper */}
@@ -73,6 +102,82 @@ const PromptInput = ({ onGenerate, isGenerating, selectedProduct }) => {
           />
         </Box>
       )}
+
+      {/* Image Upload for img2img */}
+      <Box sx={{ mb: 2 }}>
+        <Typography variant="body2" color="textSecondary" gutterBottom>
+          Initial Image (optional - for img2img generation)
+        </Typography>
+
+        {!imagePreview ? (
+          <Button
+            component="label"
+            variant="outlined"
+            startIcon={<CloudUpload />}
+            fullWidth
+            sx={{
+              py: 2,
+              borderStyle: 'dashed',
+              borderWidth: 2
+            }}
+          >
+            Upload Image
+            <input
+              type="file"
+              hidden
+              accept="image/*"
+              onChange={handleImageUpload}
+            />
+          </Button>
+        ) : (
+          <Card sx={{ position: 'relative' }}>
+            <IconButton
+              onClick={handleRemoveImage}
+              sx={{
+                position: 'absolute',
+                top: 8,
+                right: 8,
+                bgcolor: 'background.paper',
+                '&:hover': { bgcolor: 'error.main', color: 'white' }
+              }}
+            >
+              <Close />
+            </IconButton>
+            <CardMedia
+              component="img"
+              height="200"
+              image={imagePreview}
+              alt="Initial image"
+              sx={{ objectFit: 'contain', bgcolor: 'grey.100' }}
+            />
+          </Card>
+        )}
+
+        {/* Strength Slider (only show when image is uploaded) */}
+        {imagePreview && (
+          <Box sx={{ mt: 2 }}>
+            <Typography gutterBottom>
+              Strength: {formData.strength} (how much to transform)
+            </Typography>
+            <Slider
+              value={formData.strength}
+              onChange={(e, value) => handleChange('strength', value)}
+              min={0.1}
+              max={1.0}
+              step={0.05}
+              marks={[
+                { value: 0.1, label: '0.1' },
+                { value: 0.5, label: '0.5' },
+                { value: 0.75, label: '0.75' },
+                { value: 1.0, label: '1.0' }
+              ]}
+            />
+            <Typography variant="caption" color="textSecondary">
+              Lower values stay closer to the original image, higher values allow more changes
+            </Typography>
+          </Box>
+        )}
+      </Box>
 
       {/* Main Prompt */}
       <TextField

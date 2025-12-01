@@ -16,6 +16,9 @@ import Sidebar from './components/common/Sidebar';
 // Dashboard
 import ImageEditor from './components/editor/ImageEditor';
 
+// Generation
+import ImageGeneration from './components/generation/ImageEditor';
+
 // Products
 import ProductDashboard from './components/products/ProductDashboard';
 import ProductTraining from './components/products/ProductTraining';
@@ -329,13 +332,25 @@ const App = () => {
                 </ProtectedRoute>
               }
             />
-            
+
             <Route
               path="/editor"
               element={
                 <ProtectedRoute>
                   <Layout>
                     <ImageEditor />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Generation */}
+            <Route
+              path="/generation"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ImageGeneration />
                   </Layout>
                 </ProtectedRoute>
               }

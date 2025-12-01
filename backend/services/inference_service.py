@@ -95,11 +95,13 @@ class InferenceService:
         cfg: float = 3.5,
         seed: int = -1,
         num_images: int = 1,
+        init_image: Optional[str] = None,
+        strength: float = 0.75,
         db: Session = None,
         user_id: int = None,
         force_provider: Optional[str] = None  # 'local', 'fal', or None for auto
     ) -> Dict[str, Any]:
-        """Generate images using ComfyUI or cloud providers with automatic GPU fallback"""
+        """Generate images using ComfyUI or cloud providers with automatic GPU fallback (supports text2img and img2img)"""
 
         start_time = time.time()
         generated_images = []
@@ -145,6 +147,8 @@ class InferenceService:
                     cfg=cfg,
                     seed=seed,
                     num_images=num_images,
+                    init_image=init_image,
+                    strength=strength,
                     db=db,
                     user_id=user_id
                 )
@@ -171,17 +175,33 @@ class InferenceService:
                         if product.trigger_word and product.trigger_word not in prompt:
                             prompt = f"{product.trigger_word} {prompt}"
             
-            # For basic generation, we'll use a simple workflow
-            workflow = self._create_basic_text_to_image_workflow(
-                prompt=prompt,
-                negative_prompt=negative_prompt,
-                width=width,
-                height=height,
-                steps=steps,
-                cfg=cfg,
-                seed=seed,
-                lora_name=lora_name
-            )
+            # Choose workflow based on whether init_image is provided
+            if init_image:
+                # Use img2img workflow
+                workflow = self._create_img_to_img_workflow(
+                    prompt=prompt,
+                    negative_prompt=negative_prompt,
+                    init_image_path=init_image,
+                    width=width,
+                    height=height,
+                    steps=steps,
+                    cfg=cfg,
+                    seed=seed,
+                    strength=strength,
+                    lora_name=lora_name
+                )
+            else:
+                # Use text2img workflow
+                workflow = self._create_basic_text_to_image_workflow(
+                    prompt=prompt,
+                    negative_prompt=negative_prompt,
+                    width=width,
+                    height=height,
+                    steps=steps,
+                    cfg=cfg,
+                    seed=seed,
+                    lora_name=lora_name
+                )
             
             # Generate each image
             for i in range(num_images):
@@ -219,7 +239,9 @@ class InferenceService:
                     parameters={
                         "width": width, "height": height, "steps": steps,
                         "cfg": cfg, "seed": seed, "num_images": num_images,
-                        "lora_name": lora_name
+                        "lora_name": lora_name,
+                        "init_image": init_image if init_image else None,
+                        "strength": strength if init_image else None
                     },
                     execution_time=execution_time,
                     cost=cost,
@@ -446,7 +468,113 @@ class InferenceService:
             workflow["4"]["inputs"]["model"] = ["13", 0]
         
         return workflow
-    
+
+    def _create_img_to_img_workflow(
+        self,
+        prompt: str,
+        negative_prompt: str,
+        init_image_path: str,
+        width: int,
+        height: int,
+        steps: int,
+        cfg: float,
+        seed: int,
+        strength: float,
+        lora_name: str = None
+    ) -> Dict[str, Any]:
+        """Create an img2img workflow for ComfyUI API"""
+
+        # Calculate denoise strength (strength of 1.0 = full denoising = text2img)
+        denoise = strength
+
+        workflow = {
+            "1": {
+                "inputs": {"image": init_image_path, "upload": "image"},
+                "class_type": "LoadImage",
+                "_meta": {"title": "Load Initial Image"}
+            },
+            "2": {
+                "inputs": {"text": prompt, "clip": ["11", 0]},
+                "class_type": "CLIPTextEncode",
+                "_meta": {"title": "CLIP Text Encode (Prompt)"}
+            },
+            "3": {
+                "inputs": {"text": negative_prompt, "clip": ["11", 0]},
+                "class_type": "CLIPTextEncode",
+                "_meta": {"title": "CLIP Text Encode (Negative)"}
+            },
+            "4": {
+                "inputs": {
+                    "seed": seed if seed != -1 else 42,
+                    "steps": steps,
+                    "cfg": cfg,
+                    "sampler_name": "euler",
+                    "scheduler": "simple",
+                    "denoise": denoise,
+                    "positive": ["2", 0],
+                    "negative": ["3", 0],
+                    "model": ["10", 0] if not lora_name else ["13", 0],
+                    "latent_image": ["14", 0]
+                },
+                "class_type": "KSampler",
+                "_meta": {"title": "KSampler"}
+            },
+            "5": {
+                "inputs": {"samples": ["4", 0], "vae": ["12", 0]},
+                "class_type": "VAEDecode",
+                "_meta": {"title": "VAE Decode"}
+            },
+            "6": {
+                "inputs": {"filename_prefix": "generated", "images": ["5", 0]},
+                "class_type": "SaveImage",
+                "_meta": {"title": "Save Image"}
+            },
+            "10": {
+                "inputs": {"unet_name": "flux1-dev.safetensors"},
+                "class_type": "UNETLoader",
+                "_meta": {"title": "Load Diffusion Model"}
+            },
+            "11": {
+                "inputs": {
+                    "clip_name1": "t5xxl_fp16.safetensors",
+                    "clip_name2": "clip_l.safetensors",
+                    "type": "flux"
+                },
+                "class_type": "DualCLIPLoader",
+                "_meta": {"title": "DualCLIPLoader"}
+            },
+            "12": {
+                "inputs": {"vae_name": "ae.safetensors"},
+                "class_type": "VAELoader",
+                "_meta": {"title": "Load VAE"}
+            },
+            "14": {
+                "inputs": {"pixels": ["1", 0], "vae": ["12", 0]},
+                "class_type": "VAEEncode",
+                "_meta": {"title": "VAE Encode"}
+            }
+        }
+
+        # Add LoRA if provided
+        if lora_name:
+            workflow["13"] = {
+                "inputs": {
+                    "lora_name": lora_name,
+                    "strength_model": 1.0,
+                    "strength_clip": 1.0,
+                    "model": ["10", 0],
+                    "clip": ["11", 0]
+                },
+                "class_type": "LoraLoader",
+                "_meta": {"title": "Load LoRA"}
+            }
+            # Update connections to use LoRA
+            workflow["2"]["inputs"]["clip"] = ["13", 1]
+            workflow["3"]["inputs"]["clip"] = ["13", 1]
+            workflow["4"]["inputs"]["model"] = ["13", 0]
+
+        return workflow
+
     async def get_comfyui_status(self) -> Dict[str, Any]:
         """Get ComfyUI system status"""
         try:
@@ -495,10 +623,12 @@ class InferenceService:
         cfg: float = 3.5,
         seed: int = -1,
         num_images: int = 1,
+        init_image: Optional[str] = None,
+        strength: float = 0.75,
         db: Session = None,
         user_id: int = None
     ) -> Dict[str, Any]:
-        """Generate images using fal.ai cloud service"""
+        """Generate images using fal.ai cloud service (supports text2img and img2img)"""
 
         start_time = time.time()
 
@@ -525,6 +655,8 @@ class InferenceService:
             guidance_scale=cfg,
             seed=seed if seed != -1 else None,
             num_images=num_images,
+            init_image=init_image,
+            strength=strength,
             lora_url=lora_url
         )
 
@@ -542,6 +674,8 @@ class InferenceService:
                 parameters={
                     "width": width, "height": height, "steps": steps,
                     "cfg": cfg, "seed": seed, "num_images": num_images,
+                    "init_image": init_image if init_image else None,
+                    "strength": strength if init_image else None,
                     "provider": "fal"
                 },
                 execution_time=execution_time,
