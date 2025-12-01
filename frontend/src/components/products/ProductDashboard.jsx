@@ -7,7 +7,7 @@ import {
 } from '@mui/material';
 import {
   Add, MoreVert, Edit, Delete, Download, ModelTraining,
-  PhotoLibrary, Public, Lock, Search
+  PhotoLibrary, Public, Lock, Search, AutoAwesome
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth.jsx';
@@ -17,24 +17,24 @@ import CreateProduct from './CreateProduct';
 const ProductDashboard = () => {
   const navigate = useNavigate();
   const { user, isAdmin } = useAuth();
-  
+
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  
+
   // Filters and pagination
   const [search, setSearch] = useState('');
   const [accessFilter, setAccessFilter] = useState('');
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [limit] = useState(12);
-  
+
   // Dialogs
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  
+
   // Menu
   const [anchorEl, setAnchorEl] = useState(null);
   const [menuProduct, setMenuProduct] = useState(null);
@@ -52,7 +52,7 @@ const ProductDashboard = () => {
         ...(search && { search }),
         ...(accessFilter && { access_level: accessFilter })
       };
-      
+
       const response = await productService.getProducts(params);
       setProducts(response.products);
       setTotal(response.total);
@@ -75,7 +75,6 @@ const ProductDashboard = () => {
   };
 
   const handleEdit = () => {
-    // Navigate to edit product page or open edit dialog
     handleMenuClose();
   };
 
@@ -143,14 +142,30 @@ const ProductDashboard = () => {
   const totalPages = Math.ceil(total / limit);
 
   return (
-    <Box sx={{ py: 1 }}>
+    <Container maxWidth="xl" sx={{ py: 3 }}>
       {/* Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 5 }}>
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        mb: 4
+      }}>
         <Box>
-          <Typography variant="h4" gutterBottom sx={{ fontWeight: 600, color: '#0f172a', mb: 1 }}>
-            Products
+          <Typography
+            variant="h4"
+            gutterBottom
+            sx={{
+              fontWeight: 700,
+              background: 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              mb: 0.5,
+              animation: 'fadeIn 0.5s ease-out'
+            }}
+          >
+            AI Products
           </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.9375rem' }}>
+          <Typography variant="body2" sx={{ color: '#94A3B8', fontSize: '0.9375rem' }}>
             Manage your AI models and training datasets
           </Typography>
         </Box>
@@ -159,7 +174,20 @@ const ProductDashboard = () => {
           variant="contained"
           startIcon={<Add />}
           onClick={() => setCreateDialogOpen(true)}
-          size="large"
+          sx={{
+            background: 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)',
+            boxShadow: '0 4px 14px 0 rgba(59, 130, 246, 0.4)',
+            textTransform: 'none',
+            fontWeight: 600,
+            px: 3,
+            py: 1.2,
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            '&:hover': {
+              background: 'linear-gradient(135deg, #2563EB 0%, #7C3AED 100%)',
+              boxShadow: '0 6px 20px 0 rgba(59, 130, 246, 0.5)',
+              transform: 'translateY(-2px)',
+            },
+          }}
         >
           Create Product
         </Button>
@@ -167,18 +195,45 @@ const ProductDashboard = () => {
 
       {/* Alerts */}
       {error && (
-        <Alert severity="error" sx={{ mb: 3, borderRadius: '8px', border: '1px solid #dc2626' }}>
+        <Alert
+          severity="error"
+          sx={{
+            mb: 3,
+            borderRadius: 2,
+            bgcolor: 'rgba(239, 68, 68, 0.1)',
+            border: '1px solid rgba(239, 68, 68, 0.2)',
+            backdropFilter: 'blur(10px)',
+            animation: 'slideDown 0.3s ease-out'
+          }}
+        >
           {error}
         </Alert>
       )}
       {success && (
-        <Alert severity="success" sx={{ mb: 3, borderRadius: '8px', border: '1px solid #059669' }}>
+        <Alert
+          severity="success"
+          sx={{
+            mb: 3,
+            borderRadius: 2,
+            bgcolor: 'rgba(34, 197, 94, 0.1)',
+            border: '1px solid rgba(34, 197, 94, 0.2)',
+            backdropFilter: 'blur(10px)',
+            animation: 'slideDown 0.3s ease-out'
+          }}
+        >
           {success}
         </Alert>
       )}
 
       {/* Filters */}
-      <Box sx={{ mb: 4, display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
+      <Box sx={{
+        mb: 4,
+        display: 'flex',
+        gap: 2,
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        animation: 'fadeIn 0.6s ease-out'
+      }}>
         <TextField
           placeholder="Search products..."
           value={search}
@@ -187,22 +242,58 @@ const ProductDashboard = () => {
           sx={{
             minWidth: 300,
             '& .MuiOutlinedInput-root': {
-              backgroundColor: '#ffffff',
+              bgcolor: 'rgba(255, 255, 255, 0.05)',
+              backdropFilter: 'blur(10px)',
+              borderRadius: 2,
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              '&:hover': {
+                border: '1px solid rgba(59, 130, 246, 0.3)',
+                bgcolor: 'rgba(255, 255, 255, 0.08)',
+              },
+              '&.Mui-focused': {
+                border: '1px solid rgba(59, 130, 246, 0.5)',
+                bgcolor: 'rgba(255, 255, 255, 0.08)',
+                boxShadow: '0 0 0 3px rgba(59, 130, 246, 0.1)',
+              }
+            },
+            '& input': {
+              color: '#F1F5F9'
+            },
+            '& input::placeholder': {
+              color: '#64748B',
+              opacity: 1
             }
           }}
           InputProps={{
-            startAdornment: <Search sx={{ mr: 1, color: '#64748b', fontSize: 20 }} />
+            startAdornment: <Search sx={{ mr: 1, color: '#64748B', fontSize: 20 }} />
           }}
         />
 
-        <FormControl sx={{ minWidth: 150 }} size="small">
-          <InputLabel>Access Level</InputLabel>
+        <FormControl
+          sx={{ minWidth: 150 }}
+          size="small"
+        >
+          <InputLabel sx={{ color: '#94A3B8' }}>Access Level</InputLabel>
           <Select
             value={accessFilter}
             onChange={(e) => setAccessFilter(e.target.value)}
             label="Access Level"
             sx={{
-              backgroundColor: '#ffffff',
+              bgcolor: 'rgba(255, 255, 255, 0.05)',
+              backdropFilter: 'blur(10px)',
+              borderRadius: 2,
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              color: '#F1F5F9',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              '&:hover': {
+                border: '1px solid rgba(59, 130, 246, 0.3)',
+                bgcolor: 'rgba(255, 255, 255, 0.08)',
+              },
+              '&.Mui-focused': {
+                border: '1px solid rgba(59, 130, 246, 0.5)',
+                boxShadow: '0 0 0 3px rgba(59, 130, 246, 0.1)',
+              }
             }}
           >
             <MenuItem value="">All</MenuItem>
@@ -211,33 +302,55 @@ const ProductDashboard = () => {
           </Select>
         </FormControl>
 
-        <Typography variant="body2" sx={{ ml: 'auto', color: '#64748b', fontSize: '0.875rem' }}>
+        <Typography variant="body2" sx={{ ml: 'auto', color: '#64748B', fontSize: '0.875rem' }}>
           {total} {total === 1 ? 'product' : 'products'}
         </Typography>
       </Box>
 
       {/* Products Grid */}
       <Grid container spacing={3}>
-        {products.map((product) => (
-          <Grid item xs={12} sm={6} md={4} lg={3} key={product.id}>
+        {products.map((product, index) => (
+          <Grid
+            item
+            xs={12}
+            sm={6}
+            md={4}
+            lg={3}
+            key={product.id}
+            sx={{
+              animation: `fadeInUp 0.5s ease-out ${index * 0.1}s both`
+            }}
+          >
             <Card
               sx={{
                 height: '100%',
                 display: 'flex',
                 flexDirection: 'column',
-                transition: 'all 0.2s ease',
+                background: 'rgba(255, 255, 255, 0.03)',
+                backdropFilter: 'blur(20px)',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                borderRadius: 3,
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 '&:hover': {
-                  boxShadow: '0 4px 12px 0 rgb(0 0 0 / 0.08)',
-                  transform: 'translateY(-2px)',
+                  transform: 'translateY(-4px)',
+                  border: '1px solid rgba(59, 130, 246, 0.3)',
+                  boxShadow: '0 12px 24px -10px rgba(59, 130, 246, 0.3)',
+                  background: 'rgba(255, 255, 255, 0.05)',
                 }
               }}
             >
               <CardContent sx={{ flexGrow: 1, p: 3 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2.5 }}>
+                <Box sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'flex-start',
+                  mb: 2.5
+                }}>
                   <Avatar
                     sx={{
-                      bgcolor: '#eff6ff',
-                      color: '#2563eb',
+                      background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%)',
+                      border: '1px solid rgba(59, 130, 246, 0.3)',
+                      color: '#3B82F6',
                       width: 44,
                       height: 44,
                     }}
@@ -253,11 +366,15 @@ const ProductDashboard = () => {
                       sx={{
                         height: 24,
                         fontSize: '0.75rem',
-                        fontWeight: 500,
-                        backgroundColor: product.access_level === 'public' ? '#ecfdf5' : '#fef3c7',
-                        color: product.access_level === 'public' ? '#059669' : '#d97706',
+                        fontWeight: 600,
+                        background: product.access_level === 'public'
+                          ? 'rgba(34, 197, 94, 0.15)'
+                          : 'rgba(234, 179, 8, 0.15)',
+                        color: product.access_level === 'public' ? '#22C55E' : '#EAB308',
                         border: '1px solid',
-                        borderColor: product.access_level === 'public' ? '#d1fae5' : '#fde68a',
+                        borderColor: product.access_level === 'public'
+                          ? 'rgba(34, 197, 94, 0.3)'
+                          : 'rgba(234, 179, 8, 0.3)',
                         '& .MuiChip-icon': {
                           color: 'inherit',
                         }
@@ -266,20 +383,35 @@ const ProductDashboard = () => {
                     <IconButton
                       size="small"
                       onClick={(e) => handleMenuClick(e, product)}
-                      sx={{ color: '#64748b' }}
+                      sx={{
+                        color: '#64748B',
+                        '&:hover': {
+                          color: '#3B82F6',
+                          bgcolor: 'rgba(59, 130, 246, 0.1)'
+                        }
+                      }}
                     >
                       <MoreVert sx={{ fontSize: 18 }} />
                     </IconButton>
                   </Box>
                 </Box>
 
-                <Typography variant="h6" gutterBottom noWrap sx={{ fontWeight: 600, fontSize: '1.125rem', color: '#0f172a', mb: 1 }}>
+                <Typography
+                  variant="h6"
+                  gutterBottom
+                  noWrap
+                  sx={{
+                    fontWeight: 600,
+                    fontSize: '1.125rem',
+                    color: '#F1F5F9',
+                    mb: 1
+                  }}
+                >
                   {product.name}
                 </Typography>
 
                 <Typography
                   variant="body2"
-                  color="text.secondary"
                   sx={{
                     mb: 2.5,
                     display: '-webkit-box',
@@ -288,13 +420,23 @@ const ProductDashboard = () => {
                     overflow: 'hidden',
                     fontSize: '0.875rem',
                     lineHeight: 1.5,
+                    color: '#94A3B8'
                   }}
                 >
                   {product.description || 'No description provided'}
                 </Typography>
 
                 <Box sx={{ mb: 2.5 }}>
-                  <Typography variant="caption" sx={{ color: '#64748b', fontSize: '0.75rem', fontWeight: 500 }}>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color: '#64748B',
+                      fontSize: '0.75rem',
+                      fontWeight: 500,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px'
+                    }}
+                  >
                     Trigger Word
                   </Typography>
                   <Box sx={{ mt: 0.5 }}>
@@ -304,9 +446,10 @@ const ProductDashboard = () => {
                       sx={{
                         height: 24,
                         fontSize: '0.75rem',
-                        fontWeight: 500,
-                        backgroundColor: '#f8fafc',
-                        border: '1px solid #e2e8f0',
+                        fontWeight: 600,
+                        background: 'rgba(139, 92, 246, 0.15)',
+                        color: '#A78BFA',
+                        border: '1px solid rgba(139, 92, 246, 0.3)',
                       }}
                     />
                   </Box>
@@ -331,7 +474,22 @@ const ProductDashboard = () => {
                   variant="outlined"
                   onClick={() => navigate('/editor')}
                   disabled={product.status !== 'ready'}
-                  sx={{ flex: 1 }}
+                  startIcon={<AutoAwesome sx={{ fontSize: 16 }} />}
+                  sx={{
+                    flex: 1,
+                    borderColor: 'rgba(59, 130, 246, 0.3)',
+                    color: '#3B82F6',
+                    textTransform: 'none',
+                    fontWeight: 600,
+                    '&:hover': {
+                      borderColor: '#3B82F6',
+                      bgcolor: 'rgba(59, 130, 246, 0.1)',
+                    },
+                    '&.Mui-disabled': {
+                      borderColor: 'rgba(100, 116, 139, 0.2)',
+                      color: '#64748B'
+                    }
+                  }}
                 >
                   Generate
                 </Button>
@@ -342,7 +500,15 @@ const ProductDashboard = () => {
                     variant="text"
                     startIcon={<ModelTraining sx={{ fontSize: 16 }} />}
                     onClick={() => navigate(`/products/${product.id}/train`)}
-                    sx={{ flex: 1 }}
+                    sx={{
+                      flex: 1,
+                      color: '#8B5CF6',
+                      textTransform: 'none',
+                      fontWeight: 600,
+                      '&:hover': {
+                        bgcolor: 'rgba(139, 92, 246, 0.1)',
+                      }
+                    }}
                   >
                     Train
                   </Button>
@@ -355,13 +521,29 @@ const ProductDashboard = () => {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 5 }}>
           <Pagination
             count={totalPages}
             page={page}
             onChange={(e, newPage) => setPage(newPage)}
-            color="primary"
-            size="large"
+            sx={{
+              '& .MuiPaginationItem-root': {
+                color: '#94A3B8',
+                borderColor: 'rgba(255, 255, 255, 0.1)',
+                '&:hover': {
+                  bgcolor: 'rgba(59, 130, 246, 0.1)',
+                  borderColor: 'rgba(59, 130, 246, 0.3)',
+                },
+                '&.Mui-selected': {
+                  background: 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)',
+                  color: '#fff',
+                  fontWeight: 600,
+                  '&:hover': {
+                    background: 'linear-gradient(135deg, #2563EB 0%, #7C3AED 100%)',
+                  }
+                }
+              }
+            }}
           />
         </Box>
       )}
@@ -371,44 +553,69 @@ const ProductDashboard = () => {
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
         onClose={handleMenuClose}
+        sx={{
+          '& .MuiPaper-root': {
+            bgcolor: 'rgba(15, 23, 42, 0.95)',
+            backdropFilter: 'blur(20px)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            borderRadius: 2,
+            mt: 1
+          },
+          '& .MuiMenuItem-root': {
+            color: '#F1F5F9',
+            '&:hover': {
+              bgcolor: 'rgba(59, 130, 246, 0.1)',
+            }
+          }
+        }}
       >
         {canManageProduct(menuProduct) && (
           <MenuItem onClick={handleEdit}>
-            <Edit sx={{ mr: 2 }} />
+            <Edit sx={{ mr: 2, fontSize: 18 }} />
             Edit
           </MenuItem>
         )}
-        
+
         <MenuItem onClick={handleTrain}>
-          <ModelTraining sx={{ mr: 2 }} />
+          <ModelTraining sx={{ mr: 2, fontSize: 18 }} />
           Train Model
         </MenuItem>
-        
+
         {menuProduct?.status === 'ready' && (
           <MenuItem onClick={handleDownload}>
-            <Download sx={{ mr: 2 }} />
+            <Download sx={{ mr: 2, fontSize: 18 }} />
             Download Model
           </MenuItem>
         )}
-        
+
         {canManageProduct(menuProduct) && (
-          <MenuItem onClick={handleDeleteClick} sx={{ color: 'error.main' }}>
-            <Delete sx={{ mr: 2 }} />
+          <MenuItem onClick={handleDeleteClick} sx={{ color: '#EF4444 !important' }}>
+            <Delete sx={{ mr: 2, fontSize: 18 }} />
             Delete
           </MenuItem>
         )}
       </Menu>
 
       {/* Create Product Dialog */}
-      <Dialog 
-        open={createDialogOpen} 
+      <Dialog
+        open={createDialogOpen}
         onClose={() => setCreateDialogOpen(false)}
         maxWidth="md"
         fullWidth
+        sx={{
+          '& .MuiDialog-paper': {
+            bgcolor: 'rgba(15, 23, 42, 0.98)',
+            backdropFilter: 'blur(20px)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            borderRadius: 3,
+          }
+        }}
       >
-        <DialogTitle>Create New Product</DialogTitle>
+        <DialogTitle sx={{ color: '#F1F5F9', fontWeight: 600 }}>
+          Create New Product
+        </DialogTitle>
         <DialogContent>
-          <CreateProduct 
+          <CreateProduct
             onSuccess={handleCreateSuccess}
             onCancel={() => setCreateDialogOpen(false)}
           />
@@ -416,20 +623,51 @@ const ProductDashboard = () => {
       </Dialog>
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
-        <DialogTitle>Delete Product</DialogTitle>
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+        sx={{
+          '& .MuiDialog-paper': {
+            bgcolor: 'rgba(15, 23, 42, 0.98)',
+            backdropFilter: 'blur(20px)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            borderRadius: 3,
+          }
+        }}
+      >
+        <DialogTitle sx={{ color: '#F1F5F9', fontWeight: 600 }}>
+          Delete Product
+        </DialogTitle>
         <DialogContent>
-          <Typography>
-            Are you sure you want to delete "{selectedProduct?.name}"? 
+          <Typography sx={{ color: '#94A3B8' }}>
+            Are you sure you want to delete "{selectedProduct?.name}"?
             This action cannot be undone and will permanently remove the product and its model files.
           </Typography>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
-          <Button 
-            onClick={handleDeleteConfirm} 
-            color="error" 
+        <DialogActions sx={{ p: 3, pt: 2 }}>
+          <Button
+            onClick={() => setDeleteDialogOpen(false)}
+            sx={{
+              color: '#94A3B8',
+              textTransform: 'none',
+              '&:hover': {
+                bgcolor: 'rgba(148, 163, 184, 0.1)'
+              }
+            }}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleDeleteConfirm}
             variant="contained"
+            sx={{
+              bgcolor: '#EF4444',
+              textTransform: 'none',
+              fontWeight: 600,
+              '&:hover': {
+                bgcolor: '#DC2626',
+              }
+            }}
           >
             Delete
           </Button>
@@ -438,13 +676,19 @@ const ProductDashboard = () => {
 
       {/* Floating Action Button for Mobile */}
       <Fab
-        color="primary"
         aria-label="add"
         sx={{
           position: 'fixed',
-          bottom: 16,
-          right: 16,
-          display: { xs: 'flex', md: 'none' }
+          bottom: 24,
+          right: 24,
+          display: { xs: 'flex', md: 'none' },
+          background: 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)',
+          boxShadow: '0 8px 16px -4px rgba(59, 130, 246, 0.5)',
+          '&:hover': {
+            background: 'linear-gradient(135deg, #2563EB 0%, #7C3AED 100%)',
+            transform: 'scale(1.1)',
+          },
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         }}
         onClick={() => setCreateDialogOpen(true)}
       >
