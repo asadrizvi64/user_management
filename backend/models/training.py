@@ -69,7 +69,7 @@ class ModelDeployment(Base):
     lora_url = Column(String(500))  # URL to the deployed LoRA model
     endpoint_url = Column(String(500))  # API endpoint for inference
     trigger_word = Column(String(100))
-    metadata = Column(JSON)  # Additional deployment metadata
+    deployment_metadata = Column(JSON)  # Additional deployment metadata
     deployed_by = Column(Integer, ForeignKey("users.id"), nullable=False)
     deployed_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
