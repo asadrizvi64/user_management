@@ -1,5 +1,5 @@
 # routers/image_generation.py
-from fastapi import APIRouter, Depends, HTTPException, Form
+from fastapi import APIRouter, Depends, HTTPException, Form, File, UploadFile
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime, timedelta
@@ -27,23 +27,52 @@ async def generate_image(
     steps: int = Form(20),
     cfg: float = Form(3.5),
     seed: Optional[int] = Form(-1),
+    init_image: Optional[UploadFile] = File(None),
+    strength: float = Form(0.75),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Generate images using ComfyUI with trained models"""
+    """Generate images using ComfyUI with trained models (supports text2img and img2img)"""
     
     # Validate parameters
     if num_images < 1 or num_images > 4:
         raise HTTPException(400, "Number of images must be between 1 and 4")
-    
+
     if steps < 10 or steps > 100:
         raise HTTPException(400, "Steps must be between 10 and 100")
-    
+
     if cfg < 1.0 or cfg > 20.0:
         raise HTTPException(400, "CFG scale must be between 1.0 and 20.0")
-    
+
     if width not in [512, 768, 1024] or height not in [512, 768, 1024]:
         raise HTTPException(400, "Width and height must be 512, 768, or 1024")
+
+    if strength < 0.1 or strength > 1.0:
+        raise HTTPException(400, "Strength must be between 0.1 and 1.0")
+
+    # Handle init_image for img2img
+    init_image_path = None
+    if init_image:
+        import os
+        import uuid
+        from pathlib import Path
+
+        # Validate image type
+        if not init_image.content_type.startswith('image/'):
+            raise HTTPException(400, "Uploaded file must be an image")
+
+        # Save uploaded image temporarily
+        upload_dir = Path("uploads/init_images")
+        upload_dir.mkdir(parents=True, exist_ok=True)
+
+        file_extension = init_image.filename.split('.')[-1] if '.' in init_image.filename else 'png'
+        init_image_path = upload_dir / f"{uuid.uuid4()}.{file_extension}"
+
+        with open(init_image_path, "wb") as buffer:
+            content = await init_image.read()
+            buffer.write(content)
+
+        init_image_path = str(init_image_path)
     
     # Check product access if specified
     if product_id:
@@ -68,17 +97,26 @@ async def generate_image(
             cfg=cfg,
             seed=seed if seed != -1 else -1,
             num_images=num_images,
+            init_image=init_image_path,
+            strength=strength,
             db=db,
             user_id=current_user.id
         )
-        
+
         if "error" in result:
             raise HTTPException(500, f"Generation failed: {result['error']}")
-        
+
         return result
-        
+
     except Exception as e:
         raise HTTPException(500, f"Generation failed: {str(e)}")
+    finally:
+        # Clean up temporary init_image file
+        if init_image_path and os.path.exists(init_image_path):
+            try:
+                os.remove(init_image_path)
+            except Exception:
+                pass  # Ignore cleanup errors
 
 @router.get("/history")
 async def get_generation_history(

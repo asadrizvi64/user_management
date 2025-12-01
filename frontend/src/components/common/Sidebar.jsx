@@ -6,7 +6,7 @@ import {
 } from '@mui/material';
 import {
   Dashboard, PhotoLibrary, ModelTraining, People,
-  History, Assessment, Brush, AdminPanelSettings  // Changed Admin to AdminPanelSettings
+  History, Assessment, Brush, AdminPanelSettings, AutoAwesome
 } from '@mui/icons-material';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth.jsx';
@@ -19,7 +19,8 @@ const Sidebar = () => {
   const { user, isAdmin } = useAuth();
 
   const menuItems = [
-    { path: '/editor', label: 'Image Editor', icon: <Dashboard /> },
+    { path: '/editor', label: 'Dashboard', icon: <Dashboard /> },
+    { path: '/generation', label: 'Generate Images', icon: <AutoAwesome /> },
     { path: '/products', label: 'Products', icon: <PhotoLibrary /> },
     { path: '/history', label: 'History', icon: <History /> },
     { path: '/inpainting', label: 'Inpainting', icon: <Brush /> },
