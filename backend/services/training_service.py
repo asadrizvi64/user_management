@@ -475,7 +475,7 @@ class TrainingService:
                         lora_url=result.get("lora_url"),
                         endpoint_url=result.get("endpoint"),
                         trigger_word=trigger_word,
-                        metadata=metadata,
+                        deployment_metadata=metadata,
                         deployed_by=user_id
                     )
                     db.add(deployment)
