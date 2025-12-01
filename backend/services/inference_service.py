@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from .comfyui_client import ComfyUIClient
 from .workflow_manager import WorkflowManager
 from .gpu_manager import GPUManager
-from .fal_service import FALService
+from .fal_service import FalService
 from models.generation import Generation
 from models.product import Product
 
@@ -25,7 +25,11 @@ class InferenceService:
         self.storage_path = Path("storage")
         self.comfyui_models_path = self._find_comfyui_models_path()
         self.gpu_manager = GPUManager()
-        self.fal_service = FALService()
+
+        # Initialize FAL service with API key from environment
+        import os
+        fal_api_key = os.environ.get("FAL_KEY", "")
+        self.fal_service = FalService(api_key=fal_api_key)
     
     def _find_comfyui_models_path(self) -> Optional[Path]:
         """Try to find ComfyUI models directory"""
