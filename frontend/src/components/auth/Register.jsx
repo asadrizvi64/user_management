@@ -131,64 +131,80 @@ const Register = () => {
   return (
     <Card
       sx={{
-        maxWidth: 520,
+        maxWidth: 580,
         width: '100%',
-        background: 'rgba(255, 255, 255, 0.03)',
-        backdropFilter: 'blur(20px)',
-        border: '1px solid rgba(255, 255, 255, 0.1)',
-        borderRadius: 3,
-        boxShadow: '0 8px 32px -8px rgba(0, 0, 0, 0.3)',
-        animation: 'fadeInUp 0.5s ease-out'
+        background: 'linear-gradient(135deg, rgba(20, 20, 27, 0.95) 0%, rgba(26, 26, 36, 0.95) 100%)',
+        backdropFilter: 'blur(30px)',
+        border: '3px solid transparent',
+        borderRadius: 5,
+        boxShadow: '0 30px 80px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(139, 92, 246, 0.3)',
+        position: 'relative',
+        overflow: 'hidden',
+        animation: 'fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          inset: 0,
+          borderRadius: 5,
+          padding: '3px',
+          background: 'linear-gradient(135deg, #8b5cf6, #ec4899, #3b82f6)',
+          WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+          WebkitMaskComposite: 'xor',
+          maskComposite: 'exclude',
+          opacity: 0.6,
+        }
       }}
     >
-      <CardContent sx={{ p: 5 }}>
-        <Box sx={{ textAlign: 'center', mb: 4 }}>
-          {/* Dynamic Island Icon */}
+      <CardContent sx={{ p: 6 }}>
+        <Box sx={{ textAlign: 'center', mb: 5 }}>
+          {/* Statement Icon */}
           <Box
             sx={{
-              width: 64,
-              height: 64,
+              width: 80,
+              height: 80,
               margin: '0 auto',
               mb: 3,
-              background: 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)',
-              borderRadius: '20px',
+              background: 'linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%)',
+              borderRadius: '24px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 8px 24px -8px rgba(59, 130, 246, 0.5)',
+              boxShadow: '0 20px 60px rgba(139, 92, 246, 0.6)',
               position: 'relative',
               animation: 'pulseGlow 3s ease-in-out infinite',
               '&::before': {
                 content: '""',
                 position: 'absolute',
-                inset: -2,
-                borderRadius: '20px',
-                background: 'linear-gradient(135deg, #3B82F6, #8B5CF6)',
+                inset: -3,
+                borderRadius: '24px',
+                background: 'linear-gradient(135deg, #8b5cf6, #ec4899)',
                 opacity: 0.5,
-                filter: 'blur(10px)',
-                zIndex: -1
+                filter: 'blur(20px)',
+                zIndex: -1,
+                animation: 'pulseGlow 3s ease-in-out infinite',
               }
             }}
           >
-            <PersonAdd sx={{ fontSize: 32, color: '#fff' }} />
+            <PersonAdd sx={{ fontSize: 40, color: '#fff' }} />
           </Box>
 
           <Typography
-            variant="h4"
+            variant="h3"
             component="h1"
             gutterBottom
             sx={{
-              fontWeight: 700,
-              background: 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)',
+              fontWeight: 900,
+              background: 'linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
-              mb: 0.5,
+              mb: 1,
+              letterSpacing: '-0.03em',
             }}
           >
-            Create your account
+            Join AI Studio
           </Typography>
-          <Typography variant="body2" sx={{ color: '#94A3B8', fontSize: '0.9375rem' }}>
-            Start using AI Studio today
+          <Typography variant="body1" sx={{ color: '#a1a1aa', fontSize: '1.0625rem', fontWeight: 500 }}>
+            Start creating with AI-powered tools today
           </Typography>
         </Box>
 
@@ -197,14 +213,15 @@ const Register = () => {
             severity="error"
             sx={{
               mb: 3,
-              borderRadius: 2,
-              bgcolor: 'rgba(239, 68, 68, 0.1)',
-              border: '1px solid rgba(239, 68, 68, 0.2)',
+              borderRadius: 3,
+              bgcolor: 'rgba(239, 68, 68, 0.15)',
+              border: '2px solid rgba(239, 68, 68, 0.3)',
               backdropFilter: 'blur(10px)',
-              color: '#EF4444',
+              color: '#ef4444',
+              fontWeight: 600,
               animation: 'slideDown 0.3s ease-out',
               '& .MuiAlert-icon': {
-                color: '#EF4444'
+                color: '#ef4444'
               }
             }}
           >
@@ -213,7 +230,7 @@ const Register = () => {
         )}
 
         <Box component="form" onSubmit={handleSubmit}>
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2.5 }}>
             <TextField
               fullWidth
               label="Username"
@@ -227,31 +244,36 @@ const Register = () => {
               helperText="Unique username"
               sx={{
                 '& .MuiOutlinedInput-root': {
-                  bgcolor: 'rgba(255, 255, 255, 0.05)',
+                  bgcolor: 'rgba(255, 255, 255, 0.03)',
                   backdropFilter: 'blur(10px)',
-                  borderRadius: 2,
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  color: '#F1F5F9',
+                  borderRadius: 3,
+                  border: '2px solid rgba(139, 92, 246, 0.2)',
+                  color: '#ffffff',
+                  fontSize: '1.0625rem',
+                  fontWeight: 500,
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   '&:hover': {
-                    border: '1px solid rgba(59, 130, 246, 0.3)',
-                    bgcolor: 'rgba(255, 255, 255, 0.08)',
+                    border: '2px solid rgba(139, 92, 246, 0.4)',
+                    bgcolor: 'rgba(255, 255, 255, 0.05)',
+                    transform: 'translateY(-2px)',
                   },
                   '&.Mui-focused': {
-                    border: '1px solid rgba(59, 130, 246, 0.5)',
-                    bgcolor: 'rgba(255, 255, 255, 0.08)',
-                    boxShadow: '0 0 0 3px rgba(59, 130, 246, 0.1)',
+                    border: '2px solid #8b5cf6',
+                    bgcolor: 'rgba(255, 255, 255, 0.05)',
+                    boxShadow: '0 0 0 4px rgba(139, 92, 246, 0.15)',
                   }
                 },
                 '& .MuiInputLabel-root': {
-                  color: '#94A3B8',
-                  '&.Mui-focused': { color: '#3B82F6' }
+                  color: '#a1a1aa',
+                  fontWeight: 600,
+                  '&.Mui-focused': { color: '#8b5cf6', fontWeight: 700 }
                 },
                 '& .MuiFormHelperText-root': {
-                  color: '#64748B'
+                  color: '#71717a',
+                  fontWeight: 500,
                 },
                 '& input': {
-                  color: '#F1F5F9'
+                  color: '#ffffff'
                 }
               }}
             />
@@ -269,28 +291,32 @@ const Register = () => {
               placeholder="john@example.com"
               sx={{
                 '& .MuiOutlinedInput-root': {
-                  bgcolor: 'rgba(255, 255, 255, 0.05)',
+                  bgcolor: 'rgba(255, 255, 255, 0.03)',
                   backdropFilter: 'blur(10px)',
-                  borderRadius: 2,
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  color: '#F1F5F9',
+                  borderRadius: 3,
+                  border: '2px solid rgba(139, 92, 246, 0.2)',
+                  color: '#ffffff',
+                  fontSize: '1.0625rem',
+                  fontWeight: 500,
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   '&:hover': {
-                    border: '1px solid rgba(59, 130, 246, 0.3)',
-                    bgcolor: 'rgba(255, 255, 255, 0.08)',
+                    border: '2px solid rgba(139, 92, 246, 0.4)',
+                    bgcolor: 'rgba(255, 255, 255, 0.05)',
+                    transform: 'translateY(-2px)',
                   },
                   '&.Mui-focused': {
-                    border: '1px solid rgba(59, 130, 246, 0.5)',
-                    bgcolor: 'rgba(255, 255, 255, 0.08)',
-                    boxShadow: '0 0 0 3px rgba(59, 130, 246, 0.1)',
+                    border: '2px solid #8b5cf6',
+                    bgcolor: 'rgba(255, 255, 255, 0.05)',
+                    boxShadow: '0 0 0 4px rgba(139, 92, 246, 0.15)',
                   }
                 },
                 '& .MuiInputLabel-root': {
-                  color: '#94A3B8',
-                  '&.Mui-focused': { color: '#3B82F6' }
+                  color: '#a1a1aa',
+                  fontWeight: 600,
+                  '&.Mui-focused': { color: '#8b5cf6', fontWeight: 700 }
                 },
                 '& input': {
-                  color: '#F1F5F9'
+                  color: '#ffffff'
                 }
               }}
             />
@@ -307,33 +333,37 @@ const Register = () => {
             sx={{
               mb: 1,
               '& .MuiOutlinedInput-root': {
-                bgcolor: 'rgba(255, 255, 255, 0.05)',
+                bgcolor: 'rgba(255, 255, 255, 0.03)',
                 backdropFilter: 'blur(10px)',
-                borderRadius: 2,
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                color: '#F1F5F9',
+                borderRadius: 3,
+                border: '2px solid rgba(139, 92, 246, 0.2)',
+                color: '#ffffff',
+                fontSize: '1.0625rem',
+                fontWeight: 500,
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 '&:hover': {
-                  border: '1px solid rgba(59, 130, 246, 0.3)',
-                  bgcolor: 'rgba(255, 255, 255, 0.08)',
+                  border: '2px solid rgba(139, 92, 246, 0.4)',
+                  bgcolor: 'rgba(255, 255, 255, 0.05)',
+                  transform: 'translateY(-2px)',
                 },
                 '&.Mui-focused': {
-                  border: '1px solid rgba(59, 130, 246, 0.5)',
-                  bgcolor: 'rgba(255, 255, 255, 0.08)',
-                  boxShadow: '0 0 0 3px rgba(59, 130, 246, 0.1)',
+                  border: '2px solid #8b5cf6',
+                  bgcolor: 'rgba(255, 255, 255, 0.05)',
+                  boxShadow: '0 0 0 4px rgba(139, 92, 246, 0.15)',
                 }
               },
               '& .MuiInputLabel-root': {
-                color: '#94A3B8',
-                '&.Mui-focused': { color: '#3B82F6' }
+                color: '#a1a1aa',
+                fontWeight: 600,
+                '&.Mui-focused': { color: '#8b5cf6', fontWeight: 700 }
               },
               '& input': {
-                color: '#F1F5F9'
+                color: '#ffffff'
               }
             }}
           />
 
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2.5 }}>
             <TextField
               fullWidth
               label="Password"
@@ -347,31 +377,36 @@ const Register = () => {
               helperText="Min. 6 characters"
               sx={{
                 '& .MuiOutlinedInput-root': {
-                  bgcolor: 'rgba(255, 255, 255, 0.05)',
+                  bgcolor: 'rgba(255, 255, 255, 0.03)',
                   backdropFilter: 'blur(10px)',
-                  borderRadius: 2,
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  color: '#F1F5F9',
+                  borderRadius: 3,
+                  border: '2px solid rgba(139, 92, 246, 0.2)',
+                  color: '#ffffff',
+                  fontSize: '1.0625rem',
+                  fontWeight: 500,
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   '&:hover': {
-                    border: '1px solid rgba(59, 130, 246, 0.3)',
-                    bgcolor: 'rgba(255, 255, 255, 0.08)',
+                    border: '2px solid rgba(139, 92, 246, 0.4)',
+                    bgcolor: 'rgba(255, 255, 255, 0.05)',
+                    transform: 'translateY(-2px)',
                   },
                   '&.Mui-focused': {
-                    border: '1px solid rgba(59, 130, 246, 0.5)',
-                    bgcolor: 'rgba(255, 255, 255, 0.08)',
-                    boxShadow: '0 0 0 3px rgba(59, 130, 246, 0.1)',
+                    border: '2px solid #8b5cf6',
+                    bgcolor: 'rgba(255, 255, 255, 0.05)',
+                    boxShadow: '0 0 0 4px rgba(139, 92, 246, 0.15)',
                   }
                 },
                 '& .MuiInputLabel-root': {
-                  color: '#94A3B8',
-                  '&.Mui-focused': { color: '#3B82F6' }
+                  color: '#a1a1aa',
+                  fontWeight: 600,
+                  '&.Mui-focused': { color: '#8b5cf6', fontWeight: 700 }
                 },
                 '& .MuiFormHelperText-root': {
-                  color: '#64748B'
+                  color: '#71717a',
+                  fontWeight: 500,
                 },
                 '& input': {
-                  color: '#F1F5F9'
+                  color: '#ffffff'
                 }
               }}
             />
@@ -388,28 +423,32 @@ const Register = () => {
               autoComplete="new-password"
               sx={{
                 '& .MuiOutlinedInput-root': {
-                  bgcolor: 'rgba(255, 255, 255, 0.05)',
+                  bgcolor: 'rgba(255, 255, 255, 0.03)',
                   backdropFilter: 'blur(10px)',
-                  borderRadius: 2,
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  color: '#F1F5F9',
+                  borderRadius: 3,
+                  border: '2px solid rgba(139, 92, 246, 0.2)',
+                  color: '#ffffff',
+                  fontSize: '1.0625rem',
+                  fontWeight: 500,
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   '&:hover': {
-                    border: '1px solid rgba(59, 130, 246, 0.3)',
-                    bgcolor: 'rgba(255, 255, 255, 0.08)',
+                    border: '2px solid rgba(139, 92, 246, 0.4)',
+                    bgcolor: 'rgba(255, 255, 255, 0.05)',
+                    transform: 'translateY(-2px)',
                   },
                   '&.Mui-focused': {
-                    border: '1px solid rgba(59, 130, 246, 0.5)',
-                    bgcolor: 'rgba(255, 255, 255, 0.08)',
-                    boxShadow: '0 0 0 3px rgba(59, 130, 246, 0.1)',
+                    border: '2px solid #8b5cf6',
+                    bgcolor: 'rgba(255, 255, 255, 0.05)',
+                    boxShadow: '0 0 0 4px rgba(139, 92, 246, 0.15)',
                   }
                 },
                 '& .MuiInputLabel-root': {
-                  color: '#94A3B8',
-                  '&.Mui-focused': { color: '#3B82F6' }
+                  color: '#a1a1aa',
+                  fontWeight: 600,
+                  '&.Mui-focused': { color: '#8b5cf6', fontWeight: 700 }
                 },
                 '& input': {
-                  color: '#F1F5F9'
+                  color: '#ffffff'
                 }
               }}
             />
@@ -424,50 +463,51 @@ const Register = () => {
             startIcon={!loading && <AutoAwesome />}
             sx={{
               mt: 4,
-              mb: 2,
-              py: 1.5,
-              fontSize: '1rem',
-              fontWeight: 600,
+              mb: 3,
+              py: 2,
+              fontSize: '1.125rem',
+              fontWeight: 800,
               textTransform: 'none',
-              background: 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)',
-              boxShadow: '0 4px 14px 0 rgba(59, 130, 246, 0.4)',
+              borderRadius: 3,
+              background: 'linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%)',
+              boxShadow: '0 10px 40px rgba(139, 92, 246, 0.5)',
               transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
               '&:hover': {
-                background: 'linear-gradient(135deg, #2563EB 0%, #7C3AED 100%)',
-                boxShadow: '0 6px 20px 0 rgba(59, 130, 246, 0.5)',
-                transform: 'translateY(-2px)',
+                background: 'linear-gradient(135deg, #7c3aed 0%, #db2777 100%)',
+                boxShadow: '0 15px 50px rgba(139, 92, 246, 0.6)',
+                transform: 'translateY(-3px)',
               },
               '&.Mui-disabled': {
                 background: 'rgba(100, 116, 139, 0.3)',
-                color: '#64748B'
+                color: '#64748b'
               }
             }}
           >
             {loading ? (
               <>
-                <CircularProgress size={20} sx={{ mr: 1, color: '#fff' }} />
+                <CircularProgress size={24} sx={{ mr: 1.5, color: '#fff' }} />
                 Creating account...
               </>
             ) : (
-              'Create account'
+              'Create Account'
             )}
           </Button>
 
           <Box sx={{ textAlign: 'center' }}>
-            <Typography variant="body2" sx={{ color: '#94A3B8' }}>
+            <Typography variant="body2" sx={{ color: '#a1a1aa', fontWeight: 500 }}>
               Already have an account?{' '}
               <Link
                 to="/login"
                 style={{
-                  color: '#3B82F6',
+                  color: '#8b5cf6',
                   textDecoration: 'none',
-                  fontWeight: 600,
+                  fontWeight: 700,
                   transition: 'color 0.2s'
                 }}
-                onMouseEnter={(e) => e.target.style.color = '#8B5CF6'}
-                onMouseLeave={(e) => e.target.style.color = '#3B82F6'}
+                onMouseEnter={(e) => e.target.style.color = '#ec4899'}
+                onMouseLeave={(e) => e.target.style.color = '#8b5cf6'}
               >
-                Sign in
+                Sign In
               </Link>
             </Typography>
           </Box>
