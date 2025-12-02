@@ -312,8 +312,8 @@ if __name__ == "__main__":
     print("Starting AI Model Training Platform...")
     print("Storage directories created")
     print("Database tables initialized")
-    print("Server will be available at: http://localhost:8001")
-    print("Health check: http://localhost:8001/health")
-    print("System status: http://localhost:8001/api/system/status")
+    print("Server will be available at: http://localhost:8002")
+    print("Health check: http://localhost:8002/health")
+    print("System status: http://localhost:8002/api/system/status")
 
-    uvicorn.run(app, host="0.0.0.0", port=8001)
+    uvicorn.run(app, host="0.0.0.0", port=8002)
