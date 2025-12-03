@@ -41,4 +41,8 @@ class Settings:
     RUNPOD_ENABLED: bool = os.getenv("RUNPOD_ENABLED", "false").lower() == "true"
     RUNPOD_DOCKER_IMAGE: str = os.getenv("RUNPOD_DOCKER_IMAGE", "runpod/pytorch:2.1.0-py3.10-cuda11.8.0-devel")
 
+    # ComfyUI settings
+    COMFYUI_URL: str = os.getenv("COMFYUI_URL", "http://127.0.0.1:8188")
+    COMFYUI_MODELS_PATH: str = os.getenv("COMFYUI_MODELS_PATH", "")
+
 settings = Settings()

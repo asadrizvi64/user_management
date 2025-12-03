@@ -13,13 +13,16 @@ from .gpu_manager import GPUManager
 from .fal_service import FalService
 from models.generation import Generation
 from models.product import Product
+from config import settings
 
 logger = logging.getLogger(__name__)
 
 class InferenceService:
     """Handles all inference operations using ComfyUI or cloud providers with automatic GPU fallback"""
 
-    def __init__(self, comfyui_url: str = "http://127.0.0.1:8188"):
+    def __init__(self, comfyui_url: str = None):
+        # Use configured ComfyUI URL or default
+        comfyui_url = comfyui_url or settings.COMFYUI_URL
         self.client = ComfyUIClient(comfyui_url, comfyui_url.replace("http", "ws"))
         self.workflow_manager = WorkflowManager()  # Use your workflow manager
         self.storage_path = Path("storage")
@@ -33,6 +36,17 @@ class InferenceService:
     
     def _find_comfyui_models_path(self) -> Optional[Path]:
         """Try to find ComfyUI models directory"""
+
+        # First, check if a path is configured in settings
+        if settings.COMFYUI_MODELS_PATH:
+            configured_path = Path(settings.COMFYUI_MODELS_PATH)
+            if configured_path.exists():
+                logger.info(f"Using configured ComfyUI models path: {configured_path}")
+                return configured_path
+            else:
+                logger.warning(f"Configured ComfyUI models path does not exist: {configured_path}")
+
+        # If no configured path or it doesn't exist, search common locations
         possible_paths = [
             Path("ComfyUI/models"),
             Path("../ComfyUI/models"),
@@ -45,15 +59,27 @@ class InferenceService:
             Path.cwd().parent / "ComfyUI/models",
             Path.cwd().parent.parent / "ComfyUI/models"
         ]
-        
+
         for path in possible_paths:
             if path.exists():
-                logger.info(f"Found ComfyUI models at: {path}")
+                logger.info(f"Found ComfyUI models at: {path.absolute()}")
                 return path
-        
-        logger.warning("ComfyUI models path not found. Creating fallback directory.")
+
+        # Create fallback directory if no ComfyUI installation found
+        logger.warning(
+            "ComfyUI models path not found. Creating fallback directory at storage/comfyui_models.\n"
+            "To use an existing ComfyUI installation, set COMFYUI_MODELS_PATH in your .env file.\n"
+            "Example: COMFYUI_MODELS_PATH=/path/to/ComfyUI/models"
+        )
         fallback_path = Path("storage/comfyui_models")
         fallback_path.mkdir(parents=True, exist_ok=True)
+
+        # Create subdirectories that ComfyUI expects
+        for subdir in ["checkpoints", "clip", "clip_vision", "configs", "controlnet",
+                       "diffusers", "embeddings", "loras", "unet", "upscale_models",
+                       "vae", "vae_approx"]:
+            (fallback_path / subdir).mkdir(exist_ok=True)
+
         return fallback_path
     
     def _install_lora_to_comfyui(self, product: Product) -> Optional[str]:
