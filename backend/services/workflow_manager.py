@@ -456,39 +456,119 @@ class WorkflowManager:
         guidance: float = 40.0
     ) -> Optional[Dict]:
         """Get your exact flux_inpainting workflow and configure it"""
-        
+
         # Load your actual workflow file
         workflow = self.load_workflow("flux_inpainting")
-        
+
         if not workflow:
             return None
-        
+
         # Update the workflow with parameters
         # Based on your flux_inpainting.json structure:
-        
+
         # Update prompts (nodes 23 and 7)
         if "23" in workflow:
             workflow["23"]["inputs"]["text"] = prompt
         if "7" in workflow:
             workflow["7"]["inputs"]["text"] = negative_prompt
-        
+
         # Update image input (node 17)
         if "17" in workflow:
             workflow["17"]["inputs"]["image"] = image_filename
-        
+
         # Update sampler settings (node 3)
         if "3" in workflow:
             workflow["3"]["inputs"]["seed"] = seed if seed != -1 else 42
             workflow["3"]["inputs"]["steps"] = steps
             workflow["3"]["inputs"]["cfg"] = cfg
-        
+
         # Update guidance (node 26)
         if "26" in workflow:
             workflow["26"]["inputs"]["guidance"] = guidance
-        
+
         # Add LoRA if provided (node 52)
         if lora_name and "52" in workflow:
             workflow["52"]["inputs"]["lora_name"] = lora_name
             workflow["52"]["inputs"]["strength_model"] = lora_strength
-        
+
+        return workflow
+
+    def get_workflow_for_product_inpainting(
+        self,
+        prompt: str,
+        negative_prompt: str,
+        image_filename: str,
+        mask_filename: str,
+        lora_name: str,
+        trigger_word: str = "",
+        lora_strength: float = 1.0,
+        steps: int = 30,
+        cfg: float = 1.0,
+        seed: int = -1,
+        guidance: float = 40.0
+    ) -> Optional[Dict]:
+        """
+        Get product inpainting workflow with separate mask support and LoRA integration.
+
+        This workflow is designed for inpainting products into scenes using trained LoRAs.
+        It uses FLUX fill inpainting model with differential diffusion for high-quality results.
+
+        Args:
+            prompt: The positive prompt (include trigger word for best results)
+            negative_prompt: What to avoid in the generation
+            image_filename: The base image filename (uploaded to ComfyUI)
+            mask_filename: The mask image filename (uploaded to ComfyUI)
+            lora_name: Name of the trained product LoRA (e.g., "white-compact-2-seat.safetensors")
+            trigger_word: Trigger word for the LoRA (e.g., "modernsofa")
+            lora_strength: Strength of LoRA application (0.0-2.0, default 1.0)
+            steps: Number of sampling steps (default 30)
+            cfg: Classifier-free guidance scale (default 1.0 for FLUX)
+            seed: Random seed (-1 for random)
+            guidance: FLUX guidance value (default 40.0)
+
+        Returns:
+            Configured workflow dict ready for ComfyUI API, or None if workflow not found
+        """
+
+        # Load the product inpainting workflow
+        workflow = self.load_workflow("product_inpainting_lora")
+
+        if not workflow:
+            logger.error("Product inpainting workflow not found")
+            return None
+
+        # Add trigger word to prompt if provided
+        if trigger_word and trigger_word not in prompt:
+            prompt = f"{prompt}\n\nlora:{lora_name.replace('.safetensors', '')}:1 {trigger_word}"
+
+        # Update prompts (nodes 23 and 7)
+        if "23" in workflow:
+            workflow["23"]["inputs"]["text"] = prompt
+        if "7" in workflow:
+            workflow["7"]["inputs"]["text"] = negative_prompt
+
+        # Update image input (node 17 - LoadImage)
+        if "17" in workflow:
+            workflow["17"]["inputs"]["image"] = image_filename
+
+        # Update mask input (node 54 - LoadImageMask)
+        if "54" in workflow:
+            workflow["54"]["inputs"]["image"] = mask_filename
+
+        # Update LoRA settings (node 52)
+        if "52" in workflow:
+            workflow["52"]["inputs"]["lora_name"] = lora_name
+            workflow["52"]["inputs"]["strength_model"] = lora_strength
+
+        # Update sampler settings (node 3)
+        if "3" in workflow:
+            workflow["3"]["inputs"]["seed"] = seed if seed != -1 else 42
+            workflow["3"]["inputs"]["steps"] = steps
+            workflow["3"]["inputs"]["cfg"] = cfg
+
+        # Update guidance (node 26)
+        if "26" in workflow:
+            workflow["26"]["inputs"]["guidance"] = guidance
+
+        logger.info(f"Configured product inpainting workflow with LoRA: {lora_name}")
         return workflow

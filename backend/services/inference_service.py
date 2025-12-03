@@ -373,7 +373,167 @@ class InferenceService:
                 "status": "failed",
                 "execution_time": time.time() - start_time
             }
-    
+
+    async def inpaint_product(
+        self,
+        prompt: str,
+        image_path: str,
+        mask_path: str,
+        product: Product,
+        negative_prompt: str = "",
+        lora_strength: float = 1.0,
+        steps: int = 30,
+        cfg: float = 1.0,
+        guidance: float = 40.0,
+        seed: int = -1,
+        db: Session = None,
+        user_id: int = None
+    ) -> Dict[str, Any]:
+        """
+        Inpaint a trained product into a scene using the dedicated product inpainting workflow.
+
+        This uses the product_inpainting_lora workflow with:
+        - FLUX fill inpainting model
+        - Product's trained LoRA
+        - Separate mask image support
+        - Differential diffusion for smooth blending
+
+        Args:
+            prompt: Scene description with product placement details
+            image_path: Path to base/background image
+            mask_path: Path to mask image (where product should be placed)
+            product: Product object with trained LoRA
+            negative_prompt: What to avoid in generation
+            lora_strength: LoRA application strength (0.0-2.0)
+            steps: Sampling steps (10-50)
+            cfg: CFG scale (0.1-20.0)
+            guidance: FLUX guidance (1.0-100.0)
+            seed: Random seed
+            db: Database session
+            user_id: User ID for tracking
+
+        Returns:
+            Dict with result_images, execution_time, cost, etc.
+        """
+
+        start_time = time.time()
+
+        try:
+            # Install LoRA to ComfyUI if not already installed
+            lora_filename = self._install_lora_to_comfyui(product)
+            if not lora_filename:
+                raise Exception(f"Failed to install LoRA model for product '{product.name}'")
+
+            logger.info(f"Using LoRA: {lora_filename} for product: {product.name}")
+
+            # Upload base image and mask to ComfyUI
+            image_upload = await self.client.upload_image(Path(image_path))
+            mask_upload = await self.client.upload_image(Path(mask_path))
+
+            logger.info(f"Uploaded images - Base: {image_upload['name']}, Mask: {mask_upload['name']}")
+
+            # Get the product inpainting workflow
+            workflow = self.workflow_manager.get_workflow_for_product_inpainting(
+                prompt=prompt,
+                negative_prompt=negative_prompt,
+                image_filename=image_upload["name"],
+                mask_filename=mask_upload["name"],
+                lora_name=lora_filename,
+                trigger_word=product.trigger_word or "",
+                lora_strength=lora_strength,
+                steps=steps,
+                cfg=cfg,
+                seed=seed,
+                guidance=guidance
+            )
+
+            if not workflow:
+                raise Exception("Could not load product inpainting workflow")
+
+            logger.info(f"Configured product inpainting workflow with {len(workflow)} nodes")
+
+            # Execute workflow
+            logger.info("Queueing workflow to ComfyUI...")
+            prompt_id = await self.client.queue_prompt(workflow)
+
+            logger.info(f"Workflow queued with ID: {prompt_id}. Waiting for completion...")
+            results = await self.client.wait_for_completion(prompt_id, timeout=600)  # 10 min timeout
+
+            # Download result images
+            result_images = []
+            for result in results:
+                if "output" in result and "images" in result["output"]:
+                    for image_info in result["output"]["images"]:
+                        logger.info(f"Downloading image: {image_info['filename']}")
+                        image_data = await self.client.get_image(
+                            image_info["filename"],
+                            image_info.get("subfolder", "")
+                        )
+
+                        # Save to inpainting outputs directory
+                        output_path = self._create_output_path("inpainting/outputs")
+                        with open(output_path, "wb") as f:
+                            f.write(image_data)
+
+                        result_images.append(str(output_path))
+                        logger.info(f"Saved result to: {output_path}")
+
+            if not result_images:
+                raise Exception("No images were generated")
+
+            execution_time = time.time() - start_time
+            cost = self._calculate_cost(steps, 1024 * 1024, 1) * 2.0  # Product inpainting costs more
+
+            logger.info(f"Product inpainting completed in {execution_time:.2f}s, generated {len(result_images)} images")
+
+            # Save generation record to database
+            if db and user_id:
+                generation = Generation(
+                    prompt=prompt,
+                    negative_prompt=negative_prompt,
+                    product_id=product.id,
+                    image_paths=result_images,
+                    parameters={
+                        "workflow": "product_inpainting_lora",
+                        "lora_name": lora_filename,
+                        "lora_strength": lora_strength,
+                        "trigger_word": product.trigger_word,
+                        "steps": steps,
+                        "cfg": cfg,
+                        "guidance": guidance,
+                        "seed": seed,
+                        "base_image": image_path,
+                        "mask_image": mask_path
+                    },
+                    execution_time=execution_time,
+                    cost=cost,
+                    user_id=user_id
+                )
+
+                db.add(generation)
+                db.commit()
+                db.refresh(generation)
+
+            return {
+                "result_images": result_images,
+                "prompt": prompt,
+                "negative_prompt": negative_prompt,
+                "product_id": product.id,
+                "execution_time": execution_time,
+                "cost": cost,
+                "status": "completed"
+            }
+
+        except Exception as e:
+            logger.error(f"Product inpainting failed: {e}")
+            import traceback
+            traceback.print_exc()
+            return {
+                "error": str(e),
+                "status": "failed",
+                "execution_time": time.time() - start_time
+            }
+
     def _create_basic_text_to_image_workflow(
         self,
         prompt: str,

@@ -111,21 +111,155 @@ async def inpaint_image(
         print(f"Inpainting error: {str(e)}")
         raise HTTPException(500, f"Inpainting failed: {str(e)}")
 
+@router.post("/product-inpaint")
+async def inpaint_product(
+    prompt: str = Form(...),
+    base_image: UploadFile = File(...),
+    mask_image: UploadFile = File(...),
+    product_id: int = Form(...),
+    negative_prompt: str = Form("skirted base, frilly fabric, curved legs, vintage style, floral patterns, mismatched lighting, distorted edges, unnatural placement, floating, blurry, low resolution"),
+    lora_strength: float = Form(1.0),
+    steps: int = Form(30),
+    cfg: float = Form(1.0),
+    guidance: float = Form(40.0),
+    seed: Optional[int] = Form(-1),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Inpaint a trained product into a scene using the product's LoRA model.
+
+    This endpoint uses your exact ComfyUI workflow for product inpainting with:
+    - FLUX fill inpainting model
+    - Trained product LoRA
+    - Differential diffusion for high-quality results
+    - Separate mask support
+
+    The workflow allows you to place your trained product (e.g., a sofa) into any scene
+    with realistic lighting, shadows, and perspective matching.
+    """
+
+    # Validate file types
+    if not base_image.content_type.startswith('image/'):
+        raise HTTPException(400, "Base image file must be an image")
+
+    if not mask_image.content_type.startswith('image/'):
+        raise HTTPException(400, "Mask image file must be an image")
+
+    # Validate parameters
+    if cfg < 0.1 or cfg > 20.0:
+        raise HTTPException(400, "CFG scale must be between 0.1 and 20.0")
+
+    if steps < 10 or steps > 50:
+        raise HTTPException(400, "Steps must be between 10 and 50")
+
+    if lora_strength < 0.0 or lora_strength > 2.0:
+        raise HTTPException(400, "LoRA strength must be between 0.0 and 2.0")
+
+    if guidance < 1.0 or guidance > 100.0:
+        raise HTTPException(400, "Guidance must be between 1.0 and 100.0")
+
+    # Get product and validate access
+    product = db.query(Product).filter(Product.id == product_id).first()
+    if not product:
+        raise HTTPException(404, "Product not found")
+
+    if (product.access_level == AccessLevel.PRIVATE and
+        product.created_by != current_user.id):
+        raise HTTPException(403, "Access denied to this product")
+
+    # Check if product has a trained model
+    if not product.model_path:
+        raise HTTPException(400, f"Product '{product.name}' has no trained LoRA model. Please train the product first.")
+
+    try:
+        # Save uploaded images
+        base_image_path = await save_uploaded_file(base_image, "inpainting/inputs")
+        mask_image_path = await save_uploaded_file(mask_image, "inpainting/masks")
+
+        print(f"\n{'='*60}")
+        print(f"Starting PRODUCT INPAINTING with LoRA")
+        print(f"{'='*60}")
+        print(f"Product: {product.name}")
+        print(f"LoRA Model: {product.model_path}")
+        print(f"Trigger Word: {product.trigger_word}")
+        print(f"Prompt: {prompt}")
+        print(f"LoRA Strength: {lora_strength}")
+        print(f"Steps: {steps}, CFG: {cfg}, Guidance: {guidance}")
+        print(f"{'='*60}\n")
+
+        # Perform product inpainting using dedicated workflow
+        result = await inference_service.inpaint_product(
+            prompt=prompt,
+            image_path=base_image_path,
+            mask_path=mask_image_path,
+            product=product,
+            negative_prompt=negative_prompt,
+            lora_strength=lora_strength,
+            steps=steps,
+            cfg=cfg,
+            guidance=guidance,
+            seed=seed if seed != -1 else -1,
+            db=db,
+            user_id=current_user.id
+        )
+
+        if "error" in result:
+            raise HTTPException(500, f"Product inpainting failed: {result['error']}")
+
+        print(f"\n{'='*60}")
+        print(f"PRODUCT INPAINTING COMPLETED SUCCESSFULLY!")
+        print(f"Generated {len(result['result_images'])} images")
+        print(f"Execution time: {result['execution_time']:.2f}s")
+        print(f"Cost: ${result['cost']:.4f}")
+        print(f"{'='*60}\n")
+
+        return {
+            "message": f"Product '{product.name}' inpainted successfully into scene",
+            "result_images": result["result_images"],
+            "base_image": base_image_path,
+            "mask_image": mask_image_path,
+            "product": {
+                "id": product.id,
+                "name": product.name,
+                "trigger_word": product.trigger_word,
+                "lora_model": product.model_path
+            },
+            "prompt": prompt,
+            "negative_prompt": negative_prompt,
+            "parameters": {
+                "steps": steps,
+                "cfg": cfg,
+                "guidance": guidance,
+                "lora_strength": lora_strength,
+                "seed": seed,
+                "workflow": "product_inpainting_lora"
+            },
+            "cost": result["cost"],
+            "execution_time": result["execution_time"]
+        }
+
+    except Exception as e:
+        print(f"\nProduct inpainting error: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(500, f"Product inpainting failed: {str(e)}")
+
 @router.get("/workflows")
 async def get_available_workflows(
     current_user: User = Depends(get_current_user)
 ):
     """Get list of available ComfyUI workflows"""
-    
+
     try:
         # Get workflow manager
         from services.workflow_manager import WorkflowManager
         workflow_manager = WorkflowManager()
-        
+
         # List available workflows
         workflows_dir = workflow_manager.workflows_dir
         available_workflows = []
-        
+
         if workflows_dir.exists():
             for workflow_file in workflows_dir.glob("*.json"):
                 workflow_name = workflow_file.stem
@@ -134,13 +268,13 @@ async def get_available_workflows(
                     "file": workflow_file.name,
                     "description": f"ComfyUI workflow: {workflow_name}"
                 })
-        
+
         return {
             "workflows": available_workflows,
             "total": len(available_workflows),
             "workflows_directory": str(workflows_dir)
         }
-        
+
     except Exception as e:
         raise HTTPException(500, f"Failed to get workflows: {str(e)}")
 

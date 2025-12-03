@@ -5,7 +5,7 @@ import {
 } from '@mui/material';
 import {
   Dashboard, PhotoLibrary, People,
-  History, Assessment, Brush, AutoAwesome
+  History, Assessment, Brush, AutoAwesome, Palette
 } from '@mui/icons-material';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth.jsx';
@@ -21,6 +21,7 @@ const Sidebar = () => {
     { path: '/editor', label: 'Dashboard', icon: <Dashboard />, gradient: '135deg, #8b5cf6, #6366f1' },
     { path: '/generation', label: 'Generate', icon: <AutoAwesome />, gradient: '135deg, #ec4899, #f97316' },
     { path: '/products', label: 'Products', icon: <PhotoLibrary />, gradient: '135deg, #3b82f6, #06b6d4' },
+    { path: '/products/inpaint', label: 'Product Inpaint', icon: <Palette />, gradient: '135deg, #06b6d4, #10b981' },
     { path: '/inpainting', label: 'Inpainting', icon: <Brush />, gradient: '135deg, #10b981, #22c55e' },
     { path: '/history', label: 'History', icon: <History />, gradient: '135deg, #f59e0b, #eab308' },
   ];
