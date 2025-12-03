@@ -23,6 +23,7 @@ import ImageGeneration from './components/generation/ImageEditor';
 import ProductDashboard from './components/products/ProductDashboard';
 import ProductTraining from './components/products/ProductTraining';
 import TrainingProgress from './components/products/TrainingProgress';
+import ProductInpainting from './components/products/ProductInpainting';
 
 // Inpainting
 import InpaintingTool from './components/inpainting/InpaintingTool';
@@ -476,6 +477,17 @@ const App = () => {
                 <ProtectedRoute>
                   <Layout>
                     <InpaintingTool />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/products/inpaint"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ProductInpainting />
                   </Layout>
                 </ProtectedRoute>
               }
