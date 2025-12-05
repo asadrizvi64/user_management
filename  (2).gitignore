@@ -5,8 +5,6 @@
 # ==== COMFYUI INSTALLATION (IGNORE ENTIRE THING) ====
 ComfyUI_FluxTrainer/
 
-frontend/node_modules/
-
 # ==== ALTERNATIVE: If you want to keep some files ====
 # Uncomment below and comment out the line above
 
