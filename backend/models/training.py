@@ -36,12 +36,17 @@ class TrainingJob(Base):
     cloud_metadata = Column(JSON)  # Additional cloud provider metadata
 
     created_by = Column(Integer, ForeignKey("users.id"), nullable=False)
+
+    # Multi-tenant field - training jobs belong to an organization
+    organization_id = Column(Integer, ForeignKey("organizations.id"), nullable=False, index=True)
+
     created_at = Column(DateTime, default=datetime.utcnow)
     started_at = Column(DateTime)
     completed_at = Column(DateTime)
 
     # Relationships
     creator = relationship("User", back_populates="training_jobs")
+    organization = relationship("Organization", back_populates="training_jobs")
 
 class TrainingDataset(Base):
     __tablename__ = "training_datasets"

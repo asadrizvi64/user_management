@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr, Field
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 from models.user import UserRole
 
@@ -8,7 +8,8 @@ class UserCreate(BaseModel):
     email: EmailStr
     password: str = Field(..., min_length=6)
     full_name: Optional[str] = Field(None, max_length=100)
-    role: UserRole = UserRole.USER
+    role: UserRole = UserRole.WORKER
+    organization_id: Optional[int] = None  # Required for ADMIN and WORKER, null for SUPER_ADMIN
 
 class UserUpdate(BaseModel):
     username: Optional[str] = Field(None, min_length=3, max_length=50)
@@ -24,6 +25,8 @@ class UserResponse(BaseModel):
     full_name: Optional[str]
     role: UserRole
     is_active: bool
+    organization_id: Optional[int]
+    created_by: Optional[int]
     created_at: datetime
     last_login: Optional[datetime]
 

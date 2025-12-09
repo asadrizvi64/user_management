@@ -5,7 +5,7 @@ from app.database import Base
 
 class Generation(Base):
     __tablename__ = "generations"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     prompt = Column(Text, nullable=False)
     negative_prompt = Column(Text)
@@ -15,8 +15,13 @@ class Generation(Base):
     execution_time = Column(Float)  # In seconds
     cost = Column(Float)  # GPU cost
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+
+    # Multi-tenant field - generations belong to an organization
+    organization_id = Column(Integer, ForeignKey("organizations.id"), nullable=False, index=True)
+
     created_at = Column(DateTime, default=datetime.utcnow)
-    
+
     # Relationships
     user = relationship("User", back_populates="generations")
     product = relationship("Product", back_populates="generations")
+    organization = relationship("Organization", back_populates="generations")
