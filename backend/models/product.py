@@ -10,7 +10,7 @@ class AccessLevel(enum.Enum):
 
 class Product(Base):
     __tablename__ = "products"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100), unique=True, index=True, nullable=False)
     description = Column(Text)
@@ -18,9 +18,14 @@ class Product(Base):
     model_path = Column(String(500))  # Path to trained model file
     access_level = Column(Enum(AccessLevel), default=AccessLevel.PUBLIC)
     created_by = Column(Integer, ForeignKey("users.id"), nullable=False)
+
+    # Multi-tenant field - products belong to an organization
+    organization_id = Column(Integer, ForeignKey("organizations.id"), nullable=False, index=True)
+
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, onupdate=datetime.utcnow)
-    
+
     # Relationships
     creator = relationship("User", back_populates="products")
+    organization = relationship("Organization", back_populates="products")
     generations = relationship("Generation", back_populates="product")

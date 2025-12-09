@@ -17,12 +17,13 @@ from app.database import engine, Base, init_database
 
 # Import models (this registers them with SQLAlchemy)
 from models.user import User
+from models.organization import Organization
 from models.product import Product
 from models.training import TrainingJob
 from models.generation import Generation
 
 # Import routers
-from routers import auth, products, training, image_generation, inpainting, users, reports
+from routers import auth, products, training, image_generation, inpainting, users, reports, organizations
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
@@ -69,31 +70,36 @@ app.mount("/static", StaticFiles(directory="storage"), name="static")
 
 # Include all routers
 app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
+app.include_router(organizations.router, tags=["Organizations"])  # Already has prefix
+app.include_router(users.router, tags=["Users"])  # Already has prefix
 app.include_router(products.router, prefix="/api/products", tags=["Products"])
 app.include_router(training.router, prefix="/api/training", tags=["Training"])
 app.include_router(image_generation.router, prefix="/api/generation", tags=["Generation"])
 app.include_router(inpainting.router, prefix="/api/inpainting", tags=["Inpainting"])
-app.include_router(users.router, prefix="/api/users", tags=["Users"])
 app.include_router(reports.router, prefix="/api/reports", tags=["Reports"])
 
 @app.get("/")
 async def root():
     return {
         "message": "AI Model Training Platform API",
-        "version": "1.0.0",
+        "version": "2.0.0",
         "features": [
             "sd-scripts Integration for FLUX LoRA training",
             "ComfyUI Integration for inference",
             "Image generation with custom models",
             "Advanced inpainting with flux-fill",
-            "Multi-user support with role management",
+            "Multi-tenant architecture with organization support",
+            "Three-tier user hierarchy (Super Admin → Admin → Workers)",
             "Real-time training progress monitoring",
-            "Cost tracking and analytics"
+            "Cost tracking and analytics",
+            "Organization-level data isolation"
         ],
         "endpoints": {
             "health": "/health",
             "system_status": "/api/system/status",
             "auth": "/api/auth/",
+            "organizations": "/api/organizations/",
+            "users": "/api/users/",
             "training": "/api/training/",
             "generation": "/api/generation/",
             "inpainting": "/api/inpainting/"

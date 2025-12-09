@@ -84,10 +84,74 @@ async def get_current_user(
 async def get_current_admin_user(
     current_user: User = Depends(get_current_user)
 ) -> User:
-    """Get current user and verify admin role"""
-    if current_user.role != UserRole.ADMIN:
+    """
+    Get current user and verify admin or super_admin role.
+    Use this for endpoints that require admin privileges.
+    """
+    if current_user.role not in [UserRole.ADMIN, UserRole.SUPER_ADMIN]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Admin access required"
         )
     return current_user
+
+async def get_current_super_admin_user(
+    current_user: User = Depends(get_current_user)
+) -> User:
+    """
+    Get current user and verify super_admin role only.
+    Use this for system-level operations that only super admin can perform.
+    """
+    if current_user.role != UserRole.SUPER_ADMIN:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Super admin access required"
+        )
+    return current_user
+
+def check_organization_access(user: User, organization_id: int) -> bool:
+    """
+    Check if user has access to a specific organization.
+    - Super admins have access to all organizations
+    - Admins and workers only have access to their own organization
+    """
+    if user.role == UserRole.SUPER_ADMIN:
+        return True
+    return user.organization_id == organization_id
+
+def check_user_access(current_user: User, target_user: User) -> bool:
+    """
+    Check if current user has access to manage/view target user.
+    - Super admins can access all users
+    - Admins can access users in their organization
+    - Workers can only access themselves
+    """
+    if current_user.role == UserRole.SUPER_ADMIN:
+        return True
+
+    if current_user.role == UserRole.ADMIN:
+        # Admins can access users in their organization
+        return current_user.organization_id == target_user.organization_id
+
+    # Workers can only access themselves
+    return current_user.id == target_user.id
+
+def can_create_user(current_user: User, role: UserRole, organization_id: int) -> bool:
+    """
+    Check if current user can create a user with specified role and organization.
+    - Super admins can create any user in any organization
+    - Admins can only create workers in their own organization
+    - Workers cannot create users
+    """
+    if current_user.role == UserRole.SUPER_ADMIN:
+        return True
+
+    if current_user.role == UserRole.ADMIN:
+        # Admins can only create workers in their own organization
+        return (
+            role == UserRole.WORKER and
+            current_user.organization_id == organization_id
+        )
+
+    # Workers cannot create users
+    return False
