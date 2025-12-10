@@ -5,7 +5,7 @@ from typing import Optional
 from datetime import datetime
 
 from database import get_db
-from models.user import User
+from models.user import User, UserRole
 from models.product import Product, AccessLevel
 from core.security import get_current_user
 from utils.file_handler import save_uploaded_file
@@ -52,9 +52,10 @@ async def inpaint_image(
         product = db.query(Product).filter(Product.id == product_id).first()
         if not product:
             raise HTTPException(404, "Product not found")
-        
-        if (product.access_level == AccessLevel.PRIVATE and 
-            product.created_by != current_user.id):
+
+        if (product.access_level == AccessLevel.PRIVATE and
+            product.created_by != current_user.id and
+            current_user.role not in [UserRole.ADMIN, UserRole.SUPER_ADMIN]):
             raise HTTPException(403, "Access denied to this product")
     
     try:
@@ -165,7 +166,8 @@ async def inpaint_product(
         raise HTTPException(404, "Product not found")
 
     if (product.access_level == AccessLevel.PRIVATE and
-        product.created_by != current_user.id):
+        product.created_by != current_user.id and
+        current_user.role not in [UserRole.ADMIN, UserRole.SUPER_ADMIN]):
         raise HTTPException(403, "Access denied to this product")
 
     # Check if product has a trained model
