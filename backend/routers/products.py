@@ -86,11 +86,11 @@ async def get_products(
     query = db.query(Product)
     
     # Filter by access level and user permissions
-    if current_user.role != UserRole.ADMIN:
+    if current_user.role not in [UserRole.ADMIN, UserRole.SUPER_ADMIN]:
         # Non-admin users can only see public products and their own private products
         query = query.filter(
             (Product.access_level == AccessLevel.PUBLIC) |
-            ((Product.access_level == AccessLevel.PRIVATE) & 
+            ((Product.access_level == AccessLevel.PRIVATE) &
              (Product.created_by == current_user.id))
         )
     
@@ -139,13 +139,13 @@ async def get_product(
     product = db.query(Product).filter(Product.id == product_id).first()
     if not product:
         raise HTTPException(404, "Product not found")
-    
+
     # Check access permissions
-    if (product.access_level == AccessLevel.PRIVATE and 
-        product.created_by != current_user.id and 
-        current_user.role != UserRole.ADMIN):
+    if (product.access_level == AccessLevel.PRIVATE and
+        product.created_by != current_user.id and
+        current_user.role not in [UserRole.ADMIN, UserRole.SUPER_ADMIN]):
         raise HTTPException(403, "Access denied to this product")
-    
+
     # Get training jobs for this product
     training_jobs = db.query(TrainingJob).filter(
         TrainingJob.product_name == product.name
@@ -190,12 +190,12 @@ async def update_product(
     product = db.query(Product).filter(Product.id == product_id).first()
     if not product:
         raise HTTPException(404, "Product not found")
-    
+
     # Check permissions
-    if (product.created_by != current_user.id and 
-        current_user.role != UserRole.ADMIN):
+    if (product.created_by != current_user.id and
+        current_user.role not in [UserRole.ADMIN, UserRole.SUPER_ADMIN]):
         raise HTTPException(403, "Permission denied")
-    
+
     # Update fields
     if name is not None:
         # Check for duplicate name
@@ -255,10 +255,10 @@ async def delete_product(
         raise HTTPException(404, "Product not found")
     
     # Check permissions
-    if (product.created_by != current_user.id and 
-        current_user.role != UserRole.ADMIN):
+    if (product.created_by != current_user.id and
+        current_user.role not in [UserRole.ADMIN, UserRole.SUPER_ADMIN]):
         raise HTTPException(403, "Permission denied")
-    
+
     # Delete model file if exists
     if product.model_path and os.path.exists(product.model_path):
         os.remove(product.model_path)
@@ -282,11 +282,11 @@ async def download_product_model(
         raise HTTPException(404, "Product not found")
     
     # Check access permissions
-    if (product.access_level == AccessLevel.PRIVATE and 
-        product.created_by != current_user.id and 
-        current_user.role != UserRole.ADMIN):
+    if (product.access_level == AccessLevel.PRIVATE and
+        product.created_by != current_user.id and
+        current_user.role not in [UserRole.ADMIN, UserRole.SUPER_ADMIN]):
         raise HTTPException(403, "Access denied to this product")
-    
+
     if not product.model_path or not os.path.exists(product.model_path):
         raise HTTPException(404, "Model file not found")
     
@@ -309,10 +309,10 @@ async def train_product_from_existing(
         raise HTTPException(404, "Product not found")
     
     # Check permissions
-    if (product.created_by != current_user.id and 
-        current_user.role != UserRole.ADMIN):
+    if (product.created_by != current_user.id and
+        current_user.role not in [UserRole.ADMIN, UserRole.SUPER_ADMIN]):
         raise HTTPException(403, "Permission denied")
-    
+
     return {
         "message": "Use the training endpoint to start training",
         "redirect": f"/api/training/start",

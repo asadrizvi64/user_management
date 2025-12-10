@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from app.database import get_db
 from models.generation import Generation
 from models.product import Product, AccessLevel
-from models.user import User
+from models.user import User, UserRole
 from core.security import get_current_user
 from services.inference_service import InferenceService
 
@@ -79,10 +79,11 @@ async def generate_image(
         product = db.query(Product).filter(Product.id == product_id).first()
         if not product:
             raise HTTPException(404, "Product not found")
-        
+
         # Check if user has access to this product
-        if (product.access_level == AccessLevel.PRIVATE and 
-            product.created_by != current_user.id):
+        if (product.access_level == AccessLevel.PRIVATE and
+            product.created_by != current_user.id and
+            current_user.role not in [UserRole.ADMIN, UserRole.SUPER_ADMIN]):
             raise HTTPException(403, "Access denied to this product")
     
     try:
